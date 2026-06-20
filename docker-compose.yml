@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  aptidao-db:
+    image: postgres:16-alpine
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: aptidao
+      POSTGRES_DB: aptidao
+    volumes:
+      - aptidao_postgres_data:/var/lib/postgresql/data
+    networks:
+      - aptidao-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aptidao -d aptidao"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  aptidao-web:
+    build: .
+    image: aptidao-web:latest
+    env_file:
+      - .env
+    environment:
+      HOSTNAME: "0.0.0.0"
+      PORT: "3000"
+    networks:
+      - aptidao-internal
+      - n8nmikaelnet
+    depends_on:
+      - aptidao-db
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=n8nmikaelnet"
+        - "traefik.http.services.aptidao.loadbalancer.server.port=3000"
+        - "traefik.http.routers.aptidao.rule=Host(`aptidao.n8nmikael.com.br`)"
+        - "traefik.http.routers.aptidao.entrypoints=websecure"
+        - "traefik.http.routers.aptidao.tls=true"
+        - "traefik.http.routers.aptidao.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.aptidao-http.rule=Host(`aptidao.n8nmikael.com.br`)"
+        - "traefik.http.routers.aptidao-http.entrypoints=web"
+        - "traefik.http.routers.aptidao-http.service=aptidao"
+
+volumes:
+  aptidao_postgres_data:
+
+networks:
+  aptidao-internal:
+    driver: overlay
+    attachable: true
+  n8nmikaelnet:
+    external: true

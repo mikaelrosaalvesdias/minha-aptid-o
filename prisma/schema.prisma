@@ -1,0 +1,434 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions  UserSession[]
+  authSessions AuthSession[]
+
+  jobPreference JobPreference?
+  jobProfile    JobProfile?
+  jobs          Job[]
+  jobNotifications JobNotification[]
+  jobConsents   JobConsent[]
+  jobApplications JobApplication[]
+  jobSearches   JobSearchHistory[]
+  resume        Resume?
+  resumeVersions ResumeVersion[]
+}
+
+model AuthSession {
+  id        String   @id @default(cuid())
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserSession {
+  id              String   @id @default(cuid())
+  userId          String?
+  name            String?
+  email           String?
+  consentAccepted Boolean
+  createdAt       DateTime @default(now())
+
+  user    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers Answer[]
+  result  Result?
+}
+
+model Question {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  text      String
+  category  String
+  type      String   @default("scale")
+  options   Json?
+  tags      Json?
+  active    Boolean  @default(true)
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  weights QuestionWeight[]
+  answers Answer[]
+}
+
+model Profile {
+  id                    String   @id @default(cuid())
+  name                  String
+  slug                  String   @unique
+  description           String
+  strengths             Json
+  attentionPoints       Json
+  suggestedDegrees      Json
+  suggestedShortCourses Json
+  searchKeywords        Json
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  weights QuestionWeight[]
+  courses CourseRecommendation[]
+}
+
+model QuestionWeight {
+  id         String @id @default(cuid())
+  questionId String
+  profileId  String
+  weight     Int
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  profile  Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, profileId])
+}
+
+model Answer {
+  id         String   @id @default(cuid())
+  sessionId  String
+  questionId String
+  value      Int
+  createdAt  DateTime @default(now())
+
+  session  UserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, questionId])
+}
+
+model Result {
+  id             String   @id @default(cuid())
+  sessionId      String   @unique
+  scores         Json
+  topProfiles    Json
+  capacityScores Json?
+  createdAt      DateTime @default(now())
+
+  session UserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model CourseRecommendation {
+  id          String   @id @default(cuid())
+  profileSlug String
+  title       String
+  provider    String
+  url         String
+  type        String
+  isFree      Boolean  @default(true)
+  source      String
+  active      Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  profile Profile @relation(fields: [profileSlug], references: [slug], onDelete: Cascade)
+}
+
+model CapacityTest {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  relatedProfiles Json
+  studyTips   Json
+  order       Int
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  questions CapacityQuestion[]
+}
+
+model CapacityQuestion {
+  id            String @id @default(cuid())
+  testId        String
+  text          String
+  options       Json
+  correctAnswer String
+  explanation   String
+  order         Int
+
+  test CapacityTest @relation(fields: [testId], references: [id], onDelete: Cascade)
+}
+
+model AppLog {
+  id        String   @id @default(cuid())
+  level     String
+  message   String
+  meta      Json?
+  createdAt DateTime @default(now())
+}
+
+// ===== Área Vagas (nova) — não altera tabelas existentes =====
+
+model JobPreference {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  cargo              String?
+  area               String?
+  cidade             String?
+  estado             String?
+  modelo             String   @default("qualquer")
+  salarioMin         Float?
+  salarioMax         Float?
+  nivel              String   @default("qualquer")
+  contrato           String   @default("qualquer")
+  keywordsDesejadas  Json     @default("[]")
+  keywordsEvitar     Json     @default("[]")
+  aceitaSemSalario   Boolean  @default(true)
+  aceitaForaCidade   Boolean  @default(true)
+  frequenciaBusca    String   @default("manual")
+  recebeNotificacoes Boolean  @default(true)
+  ultimaBuscaEm      DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  jobs       Job[]
+  searches   JobSearchHistory[]
+  consents   JobConsent[]
+  notifications JobNotification[]
+}
+
+model JobProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  resultId        String?
+  topProfileNames Json     @default("[]")
+  strengths       Json     @default("[]")
+  keywords        Json     @default("[]")
+  summary         String?
+  phone           String?
+  city            String?
+  state           String?
+  linkedin        String?
+  country         String?
+  countryCode     String?
+  location        String?
+  workAuthorization String?
+  needsVisaSponsorship Boolean?
+  citizenshipStatus String?
+  englishLevel    String?
+  currentSalary   String?
+  currentEmployer String?
+  currentRole     String?
+  latestSchool    String?
+  latestDegree    String?
+  onsiteAvailability String?
+  applicationSource String?
+  pretensaoMin    Float?
+  pretensaoMax    Float?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  consents  JobConsent[]
+  applications JobApplication[]
+}
+
+model Job {
+  id                 String   @id @default(cuid())
+  userId             String
+  title              String
+  company            String?
+  city               String?
+  state              String?
+  modelo             String?
+  salario            String?
+  contrato           String?
+  nivel              String?
+  description        String?
+  requisitos         Json?
+  beneficios         Json?
+  originalUrl        String
+  source             String
+  sourceAutoSupport  String   @default("link_only")
+  applyEmail         String?
+  atsBoard           String?
+  atsJobId           String?
+  publishedAt        DateTime?
+  foundAt            DateTime @default(now())
+  status             String   @default("nova")
+  confidence         Float    @default(0.5)
+  dedupHash          String
+  compatibilityScore Int      @default(0)
+  compatibilityReason String?
+  compatibilityBlock String?
+  viewed             Boolean  @default(false)
+  selected           Boolean  @default(false)
+  notified           Boolean  @default(false)
+  createdAt          DateTime @default(now())
+
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preference   JobPreference?   @relation(fields: [preferenceId], references: [id], onDelete: SetNull)
+  preferenceId String?
+  applications JobApplication[]
+
+  @@unique([userId, dedupHash])
+  @@index([userId, status])
+  @@index([userId, compatibilityScore])
+}
+
+model JobNotification {
+  id         String   @id @default(cuid())
+  userId     String
+  message    String
+  areaCargo  String?
+  jobCount   Int      @default(0)
+  searchDate DateTime @default(now())
+  read       Boolean  @default(false)
+  jobIds     Json     @default("[]")
+  createdAt  DateTime @default(now())
+
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preference JobPreference? @relation(fields: [preferenceId], references: [id], onDelete: SetNull)
+  preferenceId String?
+
+  @@index([userId, read])
+}
+
+model JobConsent {
+  id           String   @id @default(cuid())
+  userId       String
+  consentedAt  DateTime @default(now())
+  jobCount     Int
+  resumeUsed   String?
+  status       String   @default("confirmado")
+  jobIds       Json     @default("[]")
+  createdAt    DateTime @default(now())
+
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobProfile   JobProfile?    @relation(fields: [jobProfileId], references: [id], onDelete: SetNull)
+  jobProfileId String?
+  preference   JobPreference? @relation(fields: [preferenceId], references: [id], onDelete: SetNull)
+  preferenceId String?
+  applications JobApplication[]
+}
+
+model JobApplication {
+  id              String   @id @default(cuid())
+  userId          String
+  jobId           String
+  consentId       String?
+  status          String   @default("aguardando")
+  attemptedAt     DateTime?
+  completedAt     DateTime?
+  errorMessage    String?
+  resumeSnapshot  Json?
+  sourceCompat    String?
+  createdAt       DateTime @default(now())
+
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  consent   JobConsent?   @relation(fields: [consentId], references: [id], onDelete: SetNull)
+  jobProfile JobProfile?  @relation(fields: [jobProfileId], references: [id], onDelete: SetNull)
+  jobProfileId String?
+
+  @@unique([userId, jobId])
+  @@index([userId, status])
+}
+
+model JobSearchHistory {
+  id         String   @id @default(cuid())
+  userId     String
+  searchedAt DateTime @default(now())
+  source     String
+  query      String?
+  filters    Json?
+  foundCount Int      @default(0)
+  newCount   Int      @default(0)
+
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preference JobPreference? @relation(fields: [preferenceId], references: [id], onDelete: SetNull)
+  preferenceId String?
+
+  @@index([userId, searchedAt])
+}
+
+// ===== Currículo persistente + upload (v1.3.0) =====
+
+model Resume {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  resultId          String?
+  title             String   @default("Profissional")
+  phone             String?
+  linkedin          String?
+  summary           String?
+  photo             String?
+  experiences       Json     @default("[]")
+  education         Json     @default("[]")
+  topProfileNames   Json     @default("[]")
+  strengths         Json     @default("[]")
+  uploadedFileName  String?
+  uploadedFileData  Bytes?
+  uploadedFileType  String?
+  uploadedFileSize  Int?
+  uploadedText      String?
+  uploadedAt        DateTime?
+  activeResumeType  String   @default("builder")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions ResumeVersion[]
+}
+
+model ResumeVersion {
+  id                String   @id @default(cuid())
+  userId            String
+  resumeId          String?
+  name              String
+  kind              String   @default("visual")
+  templateId        String
+  targetArea        String?
+  targetRole        String?
+  visualConfig      Json     @default("{}")
+  sectionConfig     Json     @default("{}")
+  guideAnswers      Json     @default("{}")
+  scores            Json     @default("{}")
+  suggestions       Json     @default("[]")
+  exportHistory     Json     @default("[]")
+  isPrincipal       Boolean  @default(false)
+  useForAutoApply   Boolean  @default(false)
+  useForManualApply Boolean  @default(false)
+  useForAreas       Json     @default("[]")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resume Resume? @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([userId, isPrincipal])
+  @@index([userId, useForAutoApply])
+}
+
+// ===== Boards ATS gerenciáveis via admin (v1.3.0) =====
+
+model ATSBoard {
+  id        String   @id @default(cuid())
+  source    String
+  boardKey  String
+  label     String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([source, boardKey])
+}
