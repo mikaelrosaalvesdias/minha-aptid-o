@@ -101,109 +101,25 @@ export function JobPreferencesClient({ initial }: { initial: Preference | null }
   }
 
   return (
-    <div className="card" style={{ padding: "32px", display: "grid", gap: "20px" }}>
-      <h2 style={{ margin: 0 }}>Preferências de busca de vagas</h2>
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
-        <div className="field">
-          <label>Cargo desejado</label>
-          <input value={form.cargo} onChange={(e) => setForm({ ...form, cargo: e.target.value })} placeholder="Ex: Analista de Marketing" />
-        </div>
-        <div className="field">
-          <label>Área desejada</label>
-          <input value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })} placeholder="Ex: Marketing" />
-        </div>
-        <div className="field">
-          <label>Cidade</label>
-          <input value={form.cidade} onChange={(e) => setForm({ ...form, cidade: e.target.value })} placeholder="Ex: São Paulo" />
-        </div>
-        <div className="field">
-          <label>Estado</label>
-          <input value={form.estado} onChange={(e) => setForm({ ...form, estado: e.target.value })} placeholder="Ex: SP" />
-        </div>
-        <div className="field">
-          <label>Modelo de trabalho</label>
-          <select value={form.modelo} onChange={(e) => setForm({ ...form, modelo: e.target.value })}>
-            <option value="qualquer">Qualquer um</option>
-            <option value="presencial">Presencial</option>
-            <option value="hibrido">Híbrido</option>
-            <option value="remoto">Remoto</option>
-          </select>
-        </div>
-        <div className="field">
-          <label>Nível</label>
-          <select value={form.nivel} onChange={(e) => setForm({ ...form, nivel: e.target.value })}>
-            <option value="qualquer">Qualquer um</option>
-            <option value="estagio">Estágio</option>
-            <option value="junior">Júnior</option>
-            <option value="pleno">Pleno</option>
-            <option value="senior">Sênior</option>
-            <option value="lideranca">Liderança</option>
-          </select>
-        </div>
-        <div className="field">
-          <label>Tipo de contrato</label>
-          <select value={form.contrato} onChange={(e) => setForm({ ...form, contrato: e.target.value })}>
-            <option value="qualquer">Qualquer um</option>
-            <option value="clt">CLT</option>
-            <option value="pj">PJ</option>
-            <option value="estagio">Estágio</option>
-            <option value="freelancer">Freelancer</option>
-            <option value="temporario">Temporário</option>
-          </select>
-        </div>
-        <div className="field">
-          <label>Pretensão salarial mínima (R$)</label>
-          <input type="number" min="0" value={form.salarioMin} onChange={(e) => setForm({ ...form, salarioMin: e.target.value })} placeholder="Ex: 2000" />
-        </div>
-        <div className="field">
-          <label>Pretensão salarial máxima (R$)</label>
-          <input type="number" min="0" value={form.salarioMax} onChange={(e) => setForm({ ...form, salarioMax: e.target.value })} placeholder="Ex: 5000" />
-        </div>
-        <div className="field">
-          <label>Frequência de busca automática</label>
-          <select value={form.frequenciaBusca} onChange={(e) => setForm({ ...form, frequenciaBusca: e.target.value })}>
-            <option value="manual">Manual (eu disparo)</option>
-            <option value="diaria">Diária</option>
-            <option value="semanal">Semanal</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="field">
-        <label>Palavras-chave desejadas (separadas por vírgula)</label>
-        <input value={form.keywordsDesejadas} onChange={(e) => setForm({ ...form, keywordsDesejadas: e.target.value })} placeholder="Ex: inbound, social media, Copywriting" />
-      </div>
-      <div className="field">
-        <label>Palavras-chave a evitar (separadas por vírgula)</label>
-        <input value={form.keywordsEvitar} onChange={(e) => setForm({ ...form, keywordsEvitar: e.target.value })} placeholder="Ex: experiência obrigatória, gestão de pessoas" />
-      </div>
-
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "24px" }}>
-        <label className="consent-check">
-          <input type="checkbox" checked={form.aceitaSemSalario} onChange={(e) => setForm({ ...form, aceitaSemSalario: e.target.checked })} />
-          <span>Aceito vagas sem salário informado</span>
-        </label>
-        <label className="consent-check">
-          <input type="checkbox" checked={form.aceitaForaCidade} onChange={(e) => setForm({ ...form, aceitaForaCidade: e.target.checked })} />
-          <span>Aceito vagas fora da minha cidade</span>
-        </label>
-        <label className="consent-check">
-          <input type="checkbox" checked={form.recebeNotificacoes} onChange={(e) => setForm({ ...form, recebeNotificacoes: e.target.checked })} />
-          <span>Quero receber notificações no app</span>
-        </label>
-      </div>
-
-      {error && <p className="form-error">{error}</p>}
-      {msg && <p style={{ color: "#6ee7b7", fontWeight: 600 }}>{msg}</p>}
-
-      <div className="job-actions">
-        <button className="button secondary" onClick={() => saveAndOptionallySearch(false)} disabled={saving || searching}>
-          {saving ? <Loader2 className="spin" size={18} /> : <Save size={18} />} Salvar preferências
-        </button>
-        <button className="button" onClick={() => saveAndOptionallySearch(true)} disabled={saving || searching}>
-          {searching ? <Loader2 className="spin" size={18} /> : <Search size={18} />} Salvar e buscar vagas agora
-        </button>
+    <div className="ambient-shell">
+      <div className="ambient-content proto-shell-sm">
+        <section className="proto-card" style={{ padding: "clamp(22px,4vw,32px)", display: "grid", gap: 18, maxWidth: 760 }}>
+          <div>
+            <p className="proto-eyebrow">Preferências de busca</p>
+            <h2 className="proto-title" style={{ fontSize: "1.4rem", margin: 0 }}>Preferências de busca</h2>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div className="proto-field"><label>Cargo desejado</label><input value={form.cargo} onChange={(e) => setForm({ ...form, cargo: e.target.value })} /></div>
+            <div className="proto-field"><label>Área</label><input value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })} /></div>
+            <div className="proto-field"><label>Cidade</label><input value={form.cidade} onChange={(e) => setForm({ ...form, cidade: e.target.value })} /></div>
+            <div className="proto-field"><label>Modelo</label><select value={form.modelo} onChange={(e) => setForm({ ...form, modelo: e.target.value })}><option>Híbrido</option><option>Remoto</option><option>Presencial</option><option>Qualquer</option></select></div>
+            <div className="proto-field"><label>Nível</label><select value={form.nivel} onChange={(e) => setForm({ ...form, nivel: e.target.value })}><option>Qualquer</option><option>Estágio</option><option>Júnior</option><option>Pleno</option><option>Sênior</option></select></div>
+            <div className="proto-field"><label>Pretensão salarial</label><input value={form.salarioMax ? `R$ ${form.salarioMin || "0"} — ${form.salarioMax}` : form.salarioMin || ""} onChange={(e) => setForm({ ...form, salarioMin: e.target.value, salarioMax: "" })} placeholder="R$ 2.500 — 4.000" /></div>
+          </div>
+          {error && <p className="form-error">{error}</p>}
+          {msg && <p className="proto-success-soft" style={{ margin: 0, padding: 12, borderRadius: 12 }}>{msg}</p>}
+          <button className="proto-btn primary" type="button" onClick={() => saveAndOptionallySearch(false)} disabled={saving || searching}>{saving ? <Loader2 className="spin" size={18} /> : <Save size={18} />} Salvar preferências</button>
+        </section>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2, Search, Send, ExternalLink, CheckSquare, Square, RefreshCw, MapPin, Briefcase, Banknote, Calendar } from "lucide-react";
+import { Loader2, Search, Send, ExternalLink, CheckSquare, Square, RefreshCw, MapPin, Briefcase, Banknote, Calendar, AlertTriangle } from "lucide-react";
 
 type Job = {
   id: string;
@@ -25,10 +25,10 @@ type Job = {
 };
 
 function compatColor(score: number): string {
-  if (score >= 75) return "#10b981";
-  if (score >= 50) return "#8b5cf6";
-  if (score >= 30) return "#f59e0b";
-  return "#ef4444";
+  if (score >= 75) return "var(--success)";
+  if (score >= 50) return "var(--primary)";
+  if (score >= 30) return "var(--warning)";
+  return "var(--danger)";
 }
 
 function sourceLabel(source: string): string {
@@ -148,164 +148,92 @@ export function VagasClient({ initialJobs }: { initialJobs: Job[] }) {
   const selectedCount = selectedIds.size;
 
   return (
-    <div className="vagas-shell">
-      <div className="vagas-head">
-        <div>
-          <p className="eyebrow">Área de Vagas</p>
-          <h1>Vagas compatíveis com você</h1>
+    <div className="ambient-shell">
+      <div className="ambient-content proto-shell" style={{ display: "grid", gap: 24 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-end", justifyContent: "space-between" }}>
+          <div>
+            <p className="proto-eyebrow">Área de vagas</p>
+            <h1 className="proto-title" style={{ fontSize: "clamp(1.9rem,3.6vw,2.7rem)" }}>Vagas compatíveis com você</h1>
+          </div>
+          <Link href="/vagas/notificacoes" className="proto-btn" style={{ position: "relative" }}><AlertTriangle size={18} /> Notificações</Link>
         </div>
-        <div className="job-actions">
-          <Link href="/vagas/preferencias" className="button secondary">Preferências</Link>
-          <button className="button secondary" onClick={runSearch} disabled={searching}>
-            {searching ? <Loader2 className="spin" size={18} /> : <RefreshCw size={18} />} Buscar agora
-          </button>
-        </div>
-      </div>
 
-      <div className="card job-filters">
-        <div className="field">
-          <label>Cargo</label>
-          <input value={filters.cargo} onChange={(e) => setFilters({ ...filters, cargo: e.target.value })} placeholder="Filtrar por cargo..." />
-        </div>
-        <div className="field">
-          <label>Cidade/Estado</label>
-          <input value={filters.cidade} onChange={(e) => setFilters({ ...filters, cidade: e.target.value })} placeholder="Filtrar por local..." />
-        </div>
-        <div className="field">
-          <label>Modelo</label>
-          <select value={filters.modelo} onChange={(e) => setFilters({ ...filters, modelo: e.target.value })}>
-            <option value="qualquer">Todos</option>
-            <option value="presencial">Presencial</option>
-            <option value="hibrido">Híbrido</option>
-            <option value="remoto">Remoto</option>
-          </select>
-        </div>
-        <div className="field">
-          <label>Compatibilidade mín.</label>
-          <select value={filters.minScore} onChange={(e) => setFilters({ ...filters, minScore: e.target.value })}>
-            <option value="">Qualquer</option>
-            <option value="30">30+</option>
-            <option value="50">50+</option>
-            <option value="75">75+</option>
-          </select>
-        </div>
-        <div className="field">
-          <label>Status</label>
-          <select value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })}>
-            <option value="">Todos</option>
-            <option value="nova">Nova</option>
-            <option value="publicado">Candidatado</option>
-            <option value="acao_manual">Ação manual</option>
-          </select>
-        </div>
-      </div>
+        <nav className="proto-tabs" aria-label="Abas de vagas">
+          <Link href="/vagas" className="active">Buscar</Link>
+          <Link href="/vagas/publicar">Fila & publicar</Link>
+          <Link href="/vagas/historico">Histórico</Link>
+          <Link href="/vagas/notificacoes">Notificações</Link>
+          <Link href="/vagas/preferencias">Preferências</Link>
+        </nav>
 
-      {error && <p className="form-error">{error}</p>}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, padding: 18, background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, boxShadow: "var(--shadow-card)" }}>
+            <div className="proto-field"><input value={filters.cargo} onChange={(e) => setFilters({ ...filters, cargo: e.target.value })} placeholder="Cargo ou palavra-chave" /></div>
+            <div className="proto-field"><input value={filters.cidade} onChange={(e) => setFilters({ ...filters, cidade: e.target.value })} placeholder="Cidade" /></div>
+            <div className="proto-field"><select value={filters.modelo} onChange={(e) => setFilters({ ...filters, modelo: e.target.value })}><option value="qualquer">Modelo: todos</option><option value="remoto">Remoto</option><option value="hibrido">Híbrido</option><option value="presencial">Presencial</option></select></div>
+            <button className="proto-btn primary" type="button" onClick={runSearch} disabled={searching}>{searching ? <Loader2 className="spin" size={18} /> : <Search size={18} />} Buscar vagas</button>
+          </div>
 
-      <div className="selection-bar">
-        <div className="selection-count">
-          <strong>{selectedCount}</strong> vaga(s) selecionada(s) · {filteredJobs.length} encontrada(s)
-        </div>
-        <div className="job-actions">
-          <button className="button ghost" onClick={() => selectAllFiltered(true)}>
-            <CheckSquare size={16} /> Selecionar todas
-          </button>
-          <button className="button ghost" onClick={() => selectAllFiltered(false)}>
-            <Square size={16} /> Limpar seleção
-          </button>
-        </div>
-      </div>
-
-      {loading || searching ? (
-        <div className="inline-loading" style={{ padding: "40px" }}>
-          <Loader2 className="spin" size={20} /> {searching ? "Buscando vagas na internet..." : "Carregando..."}
-        </div>
-      ) : filteredJobs.length === 0 ? (
-        <div className="card empty-state">
-          <Search size={40} />
-          <p>Nenhuma vaga encontrada ainda.</p>
-          <Link href="/vagas/preferencias" className="button">Configurar preferências e buscar</Link>
-        </div>
-      ) : (
-        <div className="job-grid">
-          {filteredJobs.map((job) => {
-            const selected = selectedIds.has(job.id);
-            const color = compatColor(job.compatibilityScore);
-            return (
-              <div key={job.id} className="card job-card" style={selected ? { borderColor: "rgba(139,92,246,0.5)" } : undefined}>
-                <div className="job-card-top">
-                  <input type="checkbox" className="job-check" checked={selected} onChange={() => toggleSelect(job.id)} />
-                  <div style={{ flex: 1 }}>
-                    <Link href={`/vagas/${job.id}`}>
-                      <h3 className="job-title">{job.title}</h3>
-                    </Link>
-                    {job.company && <p className="job-company">{job.company}</p>}
-                  </div>
-                </div>
-
-                <div className="job-meta">
-                  {(job.city || job.state) && <span><MapPin size={12} style={{ display: "inline", marginRight: 4 }} />{[job.city, job.state].filter(Boolean).join(", ")}</span>}
-                  {job.modelo && <span><Briefcase size={12} style={{ display: "inline", marginRight: 4 }} />{job.modelo}</span>}
-                  {job.salario && <span><Banknote size={12} style={{ display: "inline", marginRight: 4 }} />{job.salario}</span>}
-                  <span><Calendar size={12} style={{ display: "inline", marginRight: 4 }} />{new Date(job.foundAt).toLocaleDateString("pt-BR")}</span>
-                  <span className="job-source">{sourceLabel(job.source)}</span>
-                </div>
-
-                <div className="compat-row">
-                  <span className="compat-score" style={{ color }}>{job.compatibilityScore}</span>
-                  <div className="compat-bar">
-                    <div className="compat-fill" style={{ width: `${job.compatibilityScore}%`, background: color }} />
-                  </div>
-                </div>
-                {job.compatibilityReason && <p className="compat-reason">{job.compatibilityReason}</p>}
-                {job.compatibilityBlock && <p className="compat-block">⚠ {job.compatibilityBlock}</p>}
-
-                <div className="job-actions" style={{ marginTop: "auto" }}>
-                  <a href={job.originalUrl} target="_blank" rel="noreferrer" className="button secondary" style={{ minHeight: 40, padding: "0 16px" }}>
-                    <ExternalLink size={15} /> Abrir vaga
-                  </a>
-                  <span className={`status-badge status-${job.status}`}>{job.status.replace(/_/g, " ")}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {selectedCount > 0 && (
-        <div className="selection-bar" style={{ position: "sticky", bottom: 16 }}>
-          <div className="selection-count">Pronto para candidatar em <strong>{selectedCount}</strong> vaga(s)</div>
-          <button className="button" onClick={() => setShowConsent(true)} disabled={publishing}>
-            {publishing ? <Loader2 className="spin" size={18} /> : <Send size={18} />} Publicar currículo nas selecionadas
-          </button>
-        </div>
-      )}
-
-      {showConsent && (
-        <div className="capacity-modal" onClick={() => setShowConsent(false)}>
-          <div className="capacity-dialog card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 560 }}>
-            <div className="dialog-title">
-              <div>
-                <h3>Confirmar candidatura</h3>
-              </div>
-              <button className="button ghost" onClick={() => setShowConsent(false)} style={{ minHeight: 36 }}>×</button>
-            </div>
-            <div className="consent-box">
-              <p>
-                Você está prestes a publicar seu currículo nas <strong>{selectedCount}</strong> vagas selecionadas.
-                O Minha Aptidão usará o currículo salvo no seu perfil e seus dados cadastrais para tentar realizar a candidatura.
-                Algumas vagas podem exigir ação manual. Deseja continuar?
-              </p>
-            </div>
-            <div className="job-actions" style={{ justifyContent: "flex-end" }}>
-              <button className="button secondary" onClick={() => setShowConsent(false)}>Cancelar</button>
-              <button className="button" onClick={confirmPublish} disabled={publishing}>
-                {publishing ? <Loader2 className="spin" size={18} /> : <Send size={18} />} Confirmar e publicar
-              </button>
-            </div>
+        <div className="proto-card primary-soft" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", padding: "14px 20px" }}>
+          <span style={{ fontWeight: 600, fontSize: ".95rem", color: "var(--text)" }}>Encontramos <strong style={{ color: "var(--primary)" }}>{filteredJobs.length} vagas</strong> alinhadas ao seu perfil analítico</span>
+          <div className="job-actions">
+            <Link href="/vagas/publicar" className="proto-btn primary" style={{ height: 42 }}>Fila & publicar</Link>
+            <button className="proto-btn primary" type="button" onClick={() => setShowConsent(true)} disabled={publishing || selectedCount === 0}>{publishing ? <Loader2 className="spin" size={18} /> : <Send size={18} />} Adicionar selecionadas à fila</button>
           </div>
         </div>
-      )}
+
+        {error && <p className="form-error">{error}</p>}
+
+        <div className="selection-bar" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          <div className="selection-count"><strong>{selectedCount}</strong> vaga(s) selecionada(s) · {filteredJobs.length} encontrada(s)</div>
+          <div className="job-actions">
+            <button className="proto-btn ghost" onClick={() => selectAllFiltered(true)}><CheckSquare size={16} /> Selecionar todas</button>
+            <button className="proto-btn ghost" onClick={() => selectAllFiltered(false)}><Square size={16} /> Limpar seleção</button>
+          </div>
+        </div>
+
+        {loading || searching ? (
+          <div className="inline-loading" style={{ padding: "40px" }}><Loader2 className="spin" size={20} /> {searching ? "Buscando vagas na internet..." : "Carregando..."}</div>
+        ) : filteredJobs.length === 0 ? (
+          <div className="proto-card empty-state"><Search size={40} /><p>Nenhuma vaga encontrada ainda.</p><Link href="/vagas/preferencias" className="proto-btn primary">Configurar preferências e buscar</Link></div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(340px,1fr))", gap: 16 }}>
+            {filteredJobs.map((job) => {
+              const selected = selectedIds.has(job.id);
+              const color = compatColor(job.compatibilityScore);
+              return (
+                <div key={job.id} className="proto-card" style={{ padding: 22, display: "grid", gap: 14, borderColor: selected ? "var(--primary)" : undefined }}>
+                  <div style={{ display: "flex", gap: 13, alignItems: "flex-start" }}>
+                    <input type="checkbox" checked={selected} onChange={() => toggleSelect(job.id)} style={{ width: 21, height: 21, marginTop: 3, accentColor: "var(--primary)", flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}><span style={{ fontSize: ".72rem", letterSpacing: ".06em", textTransform: "uppercase", color: "var(--primary)", fontWeight: 700 }}>{sourceLabel(job.source)}</span><Link href={`/vagas/${job.id}`}><h3 style={{ margin: "3px 0 0", fontSize: "1.12rem", fontWeight: 600, lineHeight: 1.3 }}>{job.title}</h3></Link><p style={{ margin: "4px 0 0", color: "var(--muted)", fontSize: ".9rem", fontWeight: 600 }}>{job.company}</p></div>
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+                    {(job.city || job.state) && <span style={{ fontSize: ".78rem", color: "var(--muted)", background: "var(--surface-2)", padding: "4px 11px", borderRadius: 999, border: "1px solid var(--border)" }}><MapPin size={12} style={{ display: "inline", marginRight: 4 }} />{[job.city, job.state].filter(Boolean).join(", ")}</span>}
+                    {job.modelo && <span style={{ fontSize: ".78rem", color: "var(--muted)", background: "var(--surface-2)", padding: "4px 11px", borderRadius: 999, border: "1px solid var(--border)" }}><Briefcase size={12} style={{ display: "inline", marginRight: 4 }} />{job.modelo}</span>}
+                    {job.salario && <span style={{ fontSize: ".78rem", color: "var(--muted)", background: "var(--surface-2)", padding: "4px 11px", borderRadius: 999, border: "1px solid var(--border)" }}><Banknote size={12} style={{ display: "inline", marginRight: 4 }} />{job.salario}</span>}
+                    <span style={{ fontSize: ".78rem", color: "var(--muted)", background: "var(--surface-2)", padding: "4px 11px", borderRadius: 999, border: "1px solid var(--border)" }}><Calendar size={12} style={{ display: "inline", marginRight: 4 }} />{new Date(job.foundAt).toLocaleDateString("pt-BR")}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}><span style={{ fontFamily: "var(--font-head)", fontSize: "1.4rem", fontWeight: 600, color }}>{job.compatibilityScore}%</span><div style={{ flex: 1, height: 8, borderRadius: 999, background: "var(--surface-2)", overflow: "hidden" }}><div style={{ height: "100%", width: `${job.compatibilityScore}%`, borderRadius: 999, background: color }} /></div></div>
+                  {job.compatibilityReason && <p className="muted" style={{ margin: 0, fontSize: ".86rem", lineHeight: 1.5 }}>{job.compatibilityReason}</p>}
+                  <div className="job-actions" style={{ marginTop: "auto" }}>
+                    <a href={job.originalUrl} target="_blank" rel="noreferrer" className="proto-btn" style={{ height: 44 }}><ExternalLink size={15} /> Ver detalhes</a>
+                    <span className={`status-badge status-${job.status}`}>{job.status.replace(/_/g, " ")}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {showConsent && (
+          <div className="proto-modal-overlay" onClick={() => setShowConsent(false)}>
+            <div className="proto-modal" onClick={(e) => e.stopPropagation()} style={{ padding: 30, textAlign: "center", justifyItems: "center" }}>
+              <span style={{ display: "inline-flex", width: 60, height: 60, alignItems: "center", justifyContent: "center", borderRadius: 18, background: "var(--primary-soft)", color: "var(--primary)" }}><Briefcase size={28} /></span>
+              <div><h2 className="proto-title" style={{ fontSize: "1.4rem", margin: 0 }}>Adicionar à fila de candidatura?</h2><p style={{ margin: "10px 0 0", color: "var(--muted)", lineHeight: 1.6, fontSize: ".96rem" }}>Vamos preparar sua candidatura para as vagas selecionadas. Você confirma antes de qualquer envio.</p></div>
+              <div style={{ display: "flex", gap: 10, width: "100%" }}><button className="proto-btn" onClick={() => setShowConsent(false)}>Cancelar</button><button className="proto-btn primary" onClick={confirmPublish} disabled={publishing}>{publishing ? <Loader2 className="spin" size={18} /> : <Send size={18} />} Adicionar à fila</button></div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

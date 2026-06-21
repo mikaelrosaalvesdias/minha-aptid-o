@@ -526,7 +526,13 @@ export function ResumeBuilderClient({
   );
 
   return (
-    <main className="page-shell" style={{ display: "grid", gap: 20, gridTemplateColumns: "minmax(280px, 390px) minmax(0, 1fr) minmax(280px, 340px)", alignItems: "start" }}>
+    <main className="ambient-shell">
+      <div className="ambient-content proto-shell-lg" style={{ display: "grid", gap: 20 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-end", justifyContent: "space-between", marginBottom: 22 }}>
+          <div><p className="proto-eyebrow">Editor de currículo</p><h1 className="proto-title" style={{ fontSize: "clamp(1.9rem,3.6vw,2.6rem)" }}>Currículo profissional</h1></div>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}><button className="proto-btn" type="button" onClick={() => saveVersion(false)} disabled={saving || !loaded}>{saving ? <Loader2 className="spin" size={16} /> : <Save size={16} />} Nova versão</button><button className="proto-btn primary" type="button" onClick={() => saveVersion(false)} disabled={saving || !loaded}>{saving ? <Loader2 className="spin" size={16} /> : <Save size={16} />} Salvar</button></div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "280px 1fr 300px", gap: 20, alignItems: "start" }}>
       <aside className="card" style={{ padding: 20, position: "sticky", top: 90, maxHeight: "calc(100vh - 110px)", overflow: "auto" }}>
         <Link href="/perfil" className="button ghost" style={{ marginBottom: 12, marginLeft: -10 }}>
           <ArrowLeft size={18} /> Voltar ao Perfil
@@ -690,6 +696,8 @@ export function ResumeBuilderClient({
           {scores.suggestions.map((suggestion) => <div key={suggestion.id} style={{ padding: 12, border: "1px solid var(--border-color)", borderRadius: 12 }}><span style={{ color: priorityColors[suggestion.priority], fontWeight: 800, fontSize: "0.8rem", textTransform: "uppercase" }}>{suggestion.priority}</span><h4 style={{ margin: "6px 0" }}>{suggestion.title}</h4><p className="muted" style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.45 }}>{suggestion.description}</p>{suggestion.actionLabel && <button className="button ghost" style={{ marginTop: 8, padding: 0 }} onClick={() => setActivePanel(suggestion.action === "templates" ? "templates" : suggestion.action === "visual" || suggestion.action === "photo" ? "visual" : "dados")}>{suggestion.actionLabel}</button>}</div>)}
         </div>
       </aside>
+        </div>
+      </div>
     </main>
   );
 }
@@ -718,7 +726,7 @@ function ResumePreview({ previewRef, userName, userEmail, resume, template, visu
     return null;
   };
 
-  return <section style={{ background: "#e5e7eb", padding: 28, borderRadius: 16, overflowX: "auto" }}><div ref={previewRef} style={{ width: "210mm", minHeight: "297mm", margin: "0 auto", background: visualConfig.backgroundColor, color: visualConfig.textColor, padding: `${visualConfig.margins}mm`, boxShadow: "0 16px 40px rgba(0,0,0,0.2)", fontFamily: `${visualConfig.bodyFont}, Arial, sans-serif`, fontSize: visualConfig.fontSize, lineHeight: visualConfig.lineSpacing }}><header style={{ display: "flex", gap: 18, alignItems: "center", padding: visualConfig.headerBackground ? 18 : 0, margin: visualConfig.headerBackground ? `-${visualConfig.margins}mm -${visualConfig.margins}mm ${visualConfig.sectionSpacing}px` : `0 0 ${visualConfig.sectionSpacing}px`, background: visualConfig.headerBackground ? visualConfig.primaryColor : "transparent", color: visualConfig.headerBackground ? "#ffffff" : visualConfig.textColor }}>
+  return <section style={{ background: "var(--surface-2)", padding: 28, borderRadius: 20, overflowX: "auto", border: "1px solid var(--border)", boxShadow: "var(--shadow-card)" }}><div ref={previewRef} style={{ width: "210mm", minHeight: "297mm", margin: "0 auto", background: visualConfig.backgroundColor, color: visualConfig.textColor, padding: `${visualConfig.margins}mm`, boxShadow: "0 18px 50px -22px rgba(20,40,80,.4)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden", fontFamily: `${visualConfig.bodyFont}, Arial, sans-serif`, fontSize: visualConfig.fontSize, lineHeight: visualConfig.lineSpacing }}><header style={{ display: "flex", gap: 18, alignItems: "center", padding: visualConfig.headerBackground ? 18 : 0, margin: visualConfig.headerBackground ? `-${visualConfig.margins}mm -${visualConfig.margins}mm ${visualConfig.sectionSpacing}px` : `0 0 ${visualConfig.sectionSpacing}px`, background: visualConfig.headerBackground ? visualConfig.primaryColor : "transparent", color: visualConfig.headerBackground ? "#ffffff" : visualConfig.textColor }}>
     {visiblePhoto && <img src={resume.photo ?? ""} alt={userName} style={{ width: 92, height: 92, borderRadius: visualConfig.photoShape === "circle" ? "50%" : visualConfig.photoShape === "rounded" ? 14 : 0, objectFit: "cover" }} />}
     <div><h1 style={{ margin: 0, fontFamily: `${visualConfig.titleFont}, Arial, sans-serif`, fontSize: visualConfig.titleSize, color: visualConfig.headerBackground ? "#ffffff" : visualConfig.textColor }}>{userName}</h1><h2 style={{ margin: "6px 0", color: visualConfig.headerBackground ? "#ffffff" : visualConfig.primaryColor, fontSize: visualConfig.fontSize + 4 }}>{resume.title}</h2><p style={{ margin: 0 }}>{[userEmail, resume.phone, resume.linkedin].filter(Boolean).join(" | ")}</p></div>
   </header><div style={{ display: template.twoColumns ? "grid" : "block", gridTemplateColumns: "1.7fr 0.9fr", gap: 28 }}>{template.twoColumns ? <><div>{sectionConfig.order.filter((section) => !["softSkills", "technicalSkills"].includes(section)).map((section) => <div key={section}>{content(section)}</div>)}</div><aside>{sectionConfig.order.filter((section) => ["softSkills", "technicalSkills"].includes(section)).map((section) => <div key={section}>{content(section)}</div>)}</aside></> : sectionConfig.order.map((section) => <div key={section}>{content(section)}</div>)}</div></div></section>;

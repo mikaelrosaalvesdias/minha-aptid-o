@@ -35,17 +35,17 @@ type Progress = {
 type StatusMeta = { icon: typeof CheckCircle2; color: string; label: string; spin?: boolean };
 
 const STATUS_META: Record<string, StatusMeta> = {
-  publicado: { icon: CheckCircle2, color: "#6ee7b7", label: "Publicado com sucesso" },
-  acao_manual: { icon: AlertTriangle, color: "#fcd34d", label: "Precisa de ação manual" },
-  bloqueado_login: { icon: AlertTriangle, color: "#fcd34d", label: "Bloqueado por login" },
-  bloqueado_captcha: { icon: AlertTriangle, color: "#fcd34d", label: "Bloqueado por captcha" },
-  bloqueado_politica: { icon: AlertTriangle, color: "#fcd34d", label: "Bloqueado por política" },
-  falhou: { icon: XCircle, color: "#fca5a5", label: "Falhou" },
-  site_indisponivel: { icon: XCircle, color: "#fca5a5", label: "Site indisponível" },
-  vaga_expirada: { icon: XCircle, color: "#fca5a5", label: "Vaga expirada" },
-  formulario_nao_reconhecido: { icon: XCircle, color: "#fca5a5", label: "Formulário não reconhecido" },
-  aguardando: { icon: Clock, color: "#93c5fd", label: "Aguardando" },
-  em_andamento: { icon: Loader2, color: "#93c5fd", label: "Em andamento", spin: true }
+  publicado: { icon: CheckCircle2, color: "var(--success)", label: "Publicado com sucesso" },
+  acao_manual: { icon: AlertTriangle, color: "var(--warning)", label: "Precisa de ação manual" },
+  bloqueado_login: { icon: AlertTriangle, color: "var(--warning)", label: "Bloqueado por login" },
+  bloqueado_captcha: { icon: AlertTriangle, color: "var(--warning)", label: "Bloqueado por captcha" },
+  bloqueado_politica: { icon: AlertTriangle, color: "var(--warning)", label: "Bloqueado por política" },
+  falhou: { icon: XCircle, color: "var(--danger)", label: "Falhou" },
+  site_indisponivel: { icon: XCircle, color: "var(--danger)", label: "Site indisponível" },
+  vaga_expirada: { icon: XCircle, color: "var(--danger)", label: "Vaga expirada" },
+  formulario_nao_reconhecido: { icon: XCircle, color: "var(--danger)", label: "Formulário não reconhecido" },
+  aguardando: { icon: Clock, color: "var(--primary)", label: "Aguardando" },
+  em_andamento: { icon: Loader2, color: "var(--primary)", label: "Em andamento", spin: true }
 };
 
 export function PublishQueueClient() {
@@ -95,9 +95,7 @@ export function PublishQueueClient() {
     }
   }
 
-  const needsManual = apps.some(
-    (a) => a.status === "bloqueado_login" || a.status === "acao_manual" || a.status.startsWith("bloqueado")
-  );
+  const needsManual = apps.some((a) => a.status === "bloqueado_login" || a.status === "acao_manual" || a.status.startsWith("bloqueado"));
 
   async function retry(id: string) {
     setRetrying(id);
@@ -110,101 +108,54 @@ export function PublishQueueClient() {
   }
 
   if (loading) {
-    return <div className="inline-loading" style={{ padding: 40 }}><Loader2 className="spin" size={20} /> Carregando fila...</div>;
+    return <div className="ambient-shell"><div className="ambient-content page-shell" style={{ minHeight: "calc(100vh - 72px)", display: "grid", placeItems: "center" }}><div className="inline-loading"><Loader2 className="spin" size={20} /> Carregando fila...</div></div></div>;
   }
 
   if (apps.length === 0) {
-    return (
-      <div className="card empty-state">
-        <CheckCircle2 size={40} />
-        <p>Nenhuma candidatura realizada ainda.</p>
-        <a href="/vagas" className="button">Selecionar vagas e publicar</a>
-      </div>
-    );
+    return <div className="ambient-shell"><div className="ambient-content page-shell" style={{ minHeight: "calc(100vh - 72px)", display: "grid", placeItems: "center" }}><div className="proto-card empty-state" style={{ padding: 48 }}><CheckCircle2 size={40} color="var(--primary)" /><p>Nenhuma candidatura realizada ainda.</p><a href="/vagas" className="proto-btn primary">Selecionar vagas e publicar</a></div></div></div>;
   }
 
   const pct = progress ? Math.round(((progress.publicados + progress.falharam + progress.acaoManual) / progress.total) * 100) : 0;
 
   return (
-    <div style={{ display: "grid", gap: 24 }}>
-      <div className="card queue-progress">
-        <h2 style={{ margin: 0 }}>Progresso da fila</h2>
-        <div className="progress-track" style={{ height: 12 }}>
-          <div className="progress-fill" style={{ width: `${pct}%` }} />
-        </div>
-        <div className="queue-stats">
-          <div className="queue-stat wait"><strong>{progress?.aguardando ?? 0}</strong><span>Aguardando</span></div>
-          <div className="queue-stat pub"><strong>{progress?.publicados ?? 0}</strong><span>Publicados</span></div>
-          <div className="queue-stat manual"><strong>{progress?.acaoManual ?? 0}</strong><span>Ação manual</span></div>
-          <div className="queue-stat fail"><strong>{progress?.falharam ?? 0}</strong><span>Falhas</span></div>
-          <div className="queue-stat"><strong>{progress?.total ?? 0}</strong><span>Total</span></div>
-        </div>
-      </div>
-
-      {needsManual && resumeText && (
-        <div className="selection-bar">
-          <div>
-            <strong>Vagas com login necessário</strong>
-            <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.85rem" }}>
-              Copie seus dados e cole no formulário da vaga. O app não armazena senhas de outros sites.
-            </p>
+    <div className="ambient-shell">
+      <div className="ambient-content" style={{ display: "grid", gap: 24 }}>
+        <div className="proto-card" style={{ padding: 20, display: "grid", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, padding: 20, textAlign: "center" }}><strong style={{ display: "block", fontFamily: "var(--font-head)", fontSize: "2rem", fontWeight: 600, color: "var(--success)" }}>{progress?.publicados ?? 0}</strong><span style={{ fontSize: ".78rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".05em", fontWeight: 600 }}>Publicadas</span></div>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, padding: 20, textAlign: "center" }}><strong style={{ display: "block", fontFamily: "var(--font-head)", fontSize: "2rem", fontWeight: 600, color: "var(--warning)" }}>{progress?.acaoManual ?? 0}</strong><span style={{ fontSize: ".78rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".05em", fontWeight: 600 }}>Ação manual</span></div>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, padding: 20, textAlign: "center" }}><strong style={{ display: "block", fontFamily: "var(--font-head)", fontSize: "2rem", fontWeight: 600, color: "var(--primary)" }}>{progress?.aguardando ?? 0}</strong><span style={{ fontSize: ".78rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".05em", fontWeight: 600 }}>Aguardando</span></div>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, padding: 20, textAlign: "center" }}><strong style={{ display: "block", fontFamily: "var(--font-head)", fontSize: "2rem", fontWeight: 600, color: "var(--text)" }}>{progress?.total ?? 0}</strong><span style={{ fontSize: ".78rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".05em", fontWeight: 600 }}>Total na fila</span></div>
           </div>
-          <div className="job-actions">
-            <button className="button secondary" style={{ minHeight: 40 }} onClick={copyResume}>
-              {copied ? <Check size={16} /> : <Copy size={16} />} {copied ? "Copiado!" : "Copiar dados do currículo"}
-            </button>
-            {mailtoUrl && (
-              <a href={mailtoUrl} className="button ghost" style={{ minHeight: 40 }}>
-                <Mail size={16} /> Enviar por e-mail
-              </a>
-            )}
-          </div>
+          <div style={{ height: 9, borderRadius: 999, background: "var(--surface-2)", overflow: "hidden" }}><div style={{ height: "100%", width: `${pct}%`, borderRadius: 999, background: "linear-gradient(90deg,var(--primary),#5a93f7)" }} /></div>
         </div>
-      )}
 
-      <div style={{ display: "grid", gap: 12 }}>
-        {apps.map((app) => {
-          const meta = STATUS_META[app.status] ?? { icon: Clock, color: "#a1a1aa", label: app.status };
-          const Icon = meta.icon;
-          const spin = meta.spin;
-          return (
-            <div key={app.id} className="history-row">
-              <div style={{ display: "flex", gap: 14, alignItems: "center", flex: 1, minWidth: 200 }}>
-                <Icon size={20} style={{ color: meta.color, flexShrink: 0 }} className={spin ? "spin" : ""} />
-                <div>
-                  <strong>{app.job.title}</strong>
-                  {app.job.company && <p className="muted" style={{ margin: "2px 0 0", fontSize: "0.85rem" }}>{app.job.company}</p>}
-                  <span className={`status-badge status-${app.status}`} style={{ marginTop: 6 }}>{meta.label}</span>
-                  {app.errorMessage && <p className="muted" style={{ margin: "6px 0 0", fontSize: "0.8rem" }}>{app.errorMessage}</p>}
+        {needsManual && resumeText && (
+          <div className="proto-card warning-soft" style={{ display: "flex", gap: 13, alignItems: "flex-start", padding: "18px 20px" }}><AlertTriangle size={20} style={{ flexShrink: 0, marginTop: 1 }} /><p style={{ margin: 0, color: "var(--muted)", fontSize: ".92rem", lineHeight: 1.6 }}>Alguns portais podem exigir login, captcha ou ação manual. Copie seu pacote de candidatura e conclua com segurança.</p></div>
+        )}
+
+        <div style={{ display: "grid", gap: 12 }}>
+          {apps.map((app) => {
+            const meta = STATUS_META[app.status] ?? { icon: Clock, color: "var(--muted)", label: app.status };
+            const Icon = meta.icon;
+            return (
+              <div key={app.id} className="history-row" style={{ background: "var(--surface)" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 14, alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 14, alignItems: "center", flex: 1, minWidth: 200 }}>
+                    <Icon size={20} style={{ color: meta.color, flexShrink: 0 }} className={meta.spin ? "spin" : ""} />
+                    <div><strong style={{ fontSize: "1.02rem" }}>{app.job.title}</strong><p style={{ margin: "3px 0 0", color: "var(--muted)", fontSize: ".88rem" }}>{app.job.company ?? app.job.company_name}</p><span className={`status-badge status-${app.status}`} style={{ marginTop: 6 }}>{meta.label}</span>{app.errorMessage && <p className="muted" style={{ margin: "6px 0 0", fontSize: ".8rem" }}>{app.errorMessage}</p>}</div>
+                  </div>
+                  <div className="job-actions">
+                    <a href={app.job.originalUrl} target="_blank" rel="noreferrer" className="proto-btn" style={{ height: 38 }}><ExternalLink size={15} /> Abrir vaga</a>
+                    {app.job.applyEmail && <a href={`mailto:${app.job.applyEmail}?subject=${encodeURIComponent("Candidatura - " + app.job.title)}&body=${encodeURIComponent(resumeText)}`} className="proto-btn" style={{ height: 38 }}><Mail size={15} /> Enviar por e-mail</a>}
+                    {(app.status === "bloqueado_login" || app.status === "acao_manual" || app.status.startsWith("bloqueado")) && resumeText && <button className="proto-btn" style={{ height: 38 }} onClick={copyResume}>{copied ? <Check size={15} /> : <Copy size={15} />} {copied ? "Copiado!" : "Copiar pacote"}</button>}
+                    {(app.status === "acao_manual" || app.status === "falhou" || app.status.startsWith("bloqueado")) && <button className="proto-btn" style={{ height: 38 }} onClick={() => retry(app.id)} disabled={retrying === app.id}>{retrying === app.id ? <Loader2 className="spin" size={16} /> : <RotateCw size={16} />} Tentar novamente</button>}
+                  </div>
                 </div>
               </div>
-              <div className="job-actions">
-                <a href={app.job.originalUrl} target="_blank" rel="noreferrer" className="button secondary" style={{ minHeight: 40, padding: "0 16px" }}>
-                  <ExternalLink size={15} /> Abrir vaga
-                </a>
-                {app.job.applyEmail && (
-                  <a
-                    href={`mailto:${app.job.applyEmail}?subject=${encodeURIComponent("Candidatura - " + app.job.title)}&body=${encodeURIComponent(resumeText)}`}
-                    className="button ghost"
-                    style={{ minHeight: 40, padding: "0 14px" }}
-                  >
-                    <Mail size={15} /> Enviar por e-mail
-                  </a>
-                )}
-                {(app.status === "bloqueado_login" || app.status === "acao_manual" || app.status.startsWith("bloqueado")) && resumeText && (
-                  <button className="button ghost" style={{ minHeight: 40, padding: "0 14px" }} onClick={copyResume} title="Copiar dados do currículo para colar no formulário">
-                    {copied ? <Check size={15} /> : <Copy size={15} />} Copiar dados
-                  </button>
-                )}
-                {(app.status === "acao_manual" || app.status === "falhou" || app.status.startsWith("bloqueado")) && (
-                  <button className="button ghost" style={{ minHeight: 40 }} onClick={() => retry(app.id)} disabled={retrying === app.id}>
-                    {retrying === app.id ? <Loader2 className="spin" size={16} /> : <RotateCw size={16} />} Tentar novamente
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

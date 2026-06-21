@@ -9,13 +9,15 @@ export default async function AdminPage() {
   const authenticated = configured && (await isAdminAuthenticated());
 
   return (
-    <main className="admin-page page-shell">
-      {!configured && (
-        <div className="warning-box">
-          ADMIN_PASSWORD não está configurado. Defina a variável de ambiente antes de usar o painel.
-        </div>
-      )}
-      {authenticated ? <AdminDashboard /> : <AdminLogin />}
+    <main className="ambient-shell">
+      <div className="ambient-content admin-page page-shell">
+        {!configured && (
+          <div className="warning-box">
+            ADMIN_PASSWORD não está configurado. Defina a variável de ambiente antes de usar o painel.
+          </div>
+        )}
+        {authenticated ? <AdminDashboard /> : <AdminLogin />}
+      </div>
     </main>
   );
 }

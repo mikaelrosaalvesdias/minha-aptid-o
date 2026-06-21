@@ -28,31 +28,21 @@ export function JobHistoryClient() {
   }
 
   if (searches.length === 0) {
-    return (
-      <div className="card empty-state">
-        <History size={40} />
-        <p>Nenhuma busca realizada ainda.</p>
-      </div>
-    );
+    return <div className="proto-card empty-state" style={{ padding: 48 }}><History size={40} color="var(--primary)" /><p>Nenhuma busca realizada ainda.</p></div>;
   }
 
   return (
     <div style={{ display: "grid", gap: 12 }}>
       {searches.map((s) => (
-        <div key={s.id} className="history-row">
+        <div key={s.id} className="history-row" style={{ background: "var(--surface)" }}>
           <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-            <Search size={18} style={{ color: "var(--accent-primary)" }} />
+            <Search size={18} color="var(--primary)" />
             <div>
               <strong>{s.query || "Busca de vagas"}</strong>
-              <p className="muted" style={{ margin: "2px 0 0", fontSize: "0.85rem" }}>
-                {new Date(s.searchedAt).toLocaleString("pt-BR")} · Fontes: {s.source}
-              </p>
+              <p className="muted" style={{ margin: "2px 0 0", fontSize: "0.85rem" }}>{new Date(s.searchedAt).toLocaleString("pt-BR")} · Fontes: {s.source}</p>
             </div>
           </div>
-          <div style={{ textAlign: "right" }}>
-            <strong style={{ color: "var(--accent-primary)" }}>{s.newCount}</strong>
-            <span className="muted" style={{ fontSize: "0.85rem" }}> novas de {s.foundCount} encontradas</span>
-          </div>
+          <div style={{ textAlign: "right" }}><strong style={{ color: "var(--primary)" }}>{s.newCount}</strong><span className="muted" style={{ fontSize: "0.85rem" }}> novas de {s.foundCount} encontradas</span></div>
         </div>
       ))}
     </div>

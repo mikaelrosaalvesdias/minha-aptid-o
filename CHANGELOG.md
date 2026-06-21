@@ -14,8 +14,22 @@ Categorias de mudança:
 - **Adicionado** — nova funcionalidade.
 - **Corrigido** — correção de bug.
 - **Alterado** — mudança em funcionalidade existente (sem quebrar).
-- **Removido** — função removida (geramente acompanha bump MAJOR).
+- **Removido** — função removida (geralmente acompanha bump MAJOR).
 - **Segurança** — correção de vulnerabilidade.
+
+---
+
+## [1.6.0] - 2026-06-21
+
+### Adicionado
+- Redesign fiel do protótipo aplicado às telas internas principais: teste, resultado, cursos, currículo, mentor, vagas, detalhe de vaga, preferências, publicação, histórico, notificações e admin.
+- Navegação pública para currículo, mentor e cursos, preservando os dados existentes do usuário.
+- Botão de adicionar vaga diretamente à fila de candidatura no detalhe da vaga.
+- Sistema visual com classes protótipo, modo claro/escuro, cards, campos, botões, pills, status, toasts e animações alinhados ao guia de implementação.
+
+### Alterado
+- Tela de teste, resultado e vagas agora usam o mesmo padrão visual do protótipo sem alterar as APIs e fluxos existentes.
+- Componentes de vagas, currículo, mentor e admin mantêm suas integrações atuais e recebem apenas ajustes visuais compatíveis.
 
 ---
 

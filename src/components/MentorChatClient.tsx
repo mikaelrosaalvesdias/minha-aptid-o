@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Send, Sparkles, User as UserIcon, Loader2, Bot } from "lucide-react";
+import { ArrowLeft, Send, Sparkles, Loader2, Bot } from "lucide-react";
 
 type Message = {
   role: "user" | "assistant";
@@ -21,7 +21,7 @@ export function MentorChatClient({
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: `Olá, ${userName}! Sou seu Mentor IA. Já analisei seu perfil: vi que você tem grande potencial para ${contextData.profiles[0]}. Como posso te ajudar hoje? Posso te dar dicas de entrevista, sugerir como melhorar seus pontos de atenção ou traçar um plano de estudos.`
+      content: `Olá, ${userName}! Vi que seu perfil tem forte aptidão analítica. Quer que eu monte um plano de estudos de 30 dias para começar na área de dados?`
     }
   ]);
   const [input, setInput] = useState("");
@@ -45,10 +45,7 @@ export function MentorChatClient({
       const res = await fetch("/api/ai/mentor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: newMessages,
-          contextData
-        })
+        body: JSON.stringify({ messages: newMessages, contextData })
       });
 
       const data = await res.json();
@@ -57,7 +54,6 @@ export function MentorChatClient({
       setMessages([...newMessages, { role: "assistant", content: data.reply }]);
     } catch (error: any) {
       alert("Houve um erro: " + error.message);
-      // Remove the user message if it failed completely
       setMessages(messages);
     } finally {
       setLoading(false);
@@ -65,84 +61,35 @@ export function MentorChatClient({
   };
 
   return (
-    <main className="page-shell" style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 100px)", padding: "24px 0" }}>
-      <div style={{ marginBottom: "16px", display: "flex", alignItems: "center", gap: "16px" }}>
-        <Link href={`/resultado/${resultId}`} className="button ghost" style={{ padding: "8px" }}>
-          <ArrowLeft size={20} />
-        </Link>
-        <div>
-          <h1 style={{ margin: 0, fontSize: "1.5rem", display: "flex", alignItems: "center", gap: "8px" }}>
-            <Sparkles size={24} color="var(--accent-primary)" />
-            Mentor de Carreira IA
-          </h1>
-          <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.9rem" }}>
-            Baseado no seu perfil exclusivo.
-          </p>
-        </div>
-      </div>
-
-      <div className="card" style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "rgba(10,10,15,0.8)" }}>
-        <div style={{ flex: 1, overflowY: "auto", padding: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
-          {messages.map((msg, idx) => (
-            <div 
-              key={idx} 
-              style={{ 
-                display: "flex", 
-                gap: "12px", 
-                alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
-                maxWidth: "80%"
-              }}
-            >
-              {msg.role === "assistant" && (
-                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--accent-gradient)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Bot size={20} color="#fff" />
-                </div>
-              )}
-              <div 
-                style={{ 
-                  padding: "12px 16px", 
-                  borderRadius: "12px", 
-                  background: msg.role === "user" ? "var(--bg-surface-hover)" : "rgba(139, 92, 246, 0.1)",
-                  border: msg.role === "user" ? "1px solid var(--border-color)" : "1px solid rgba(139, 92, 246, 0.2)",
-                  color: "var(--text-main)",
-                  lineHeight: 1.6,
-                  borderTopRightRadius: msg.role === "user" ? 0 : "12px",
-                  borderTopLeftRadius: msg.role === "assistant" ? 0 : "12px",
-                }}
-              >
-                {msg.content.split('\n').map((line, i) => (
-                  <span key={i}>
-                    {line}
-                    {i !== msg.content.split('\n').length - 1 && <br />}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-          {loading && (
-            <div style={{ display: "flex", gap: "12px", alignSelf: "flex-start" }}>
-              <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--accent-gradient)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Bot size={20} color="#fff" />
-              </div>
-              <div style={{ padding: "12px 16px", borderRadius: "12px", background: "rgba(139, 92, 246, 0.1)", border: "1px solid rgba(139, 92, 246, 0.2)", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "8px" }}>
-                <Loader2 className="spin" size={16} /> Pensando...
-              </div>
-            </div>
-          )}
-          <div ref={endRef} />
+    <main className="ambient-shell">
+      <div className="ambient-content" style={{ maxWidth: 860, margin: "0 auto", padding: "clamp(24px,4vw,44px) clamp(20px,5vw,40px)", animation: "fadeIn .45s ease both" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 15, marginBottom: 22 }}>
+          <Link href={`/resultado/${resultId}`} className="proto-btn ghost" style={{ width: 42, height: 42, padding: 0 }}><ArrowLeft size={20} /></Link>
+          <span style={{ display: "inline-flex", width: 54, height: 54, alignItems: "center", justifyContent: "center", borderRadius: 16, background: "linear-gradient(140deg,var(--primary),#5a93f7)", color: "#fff", boxShadow: "0 12px 26px -12px var(--primary-shadow)" }}><Bot size={26} color="#fff" /></span>
+          <div><h1 className="proto-title" style={{ fontSize: "1.7rem", margin: 0 }}>Mentor IA</h1><p style={{ margin: "3px 0 0", color: "var(--muted)", fontSize: ".95rem" }}>Orientação baseada no seu perfil analítico</p></div>
         </div>
 
-        <form onSubmit={sendMessage} style={{ display: "flex", gap: "12px", padding: "16px", background: "var(--bg-surface)", borderTop: "1px solid var(--border-color)" }}>
-          <input
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            placeholder="Pergunte sobre seu perfil, currículo ou entrevistas..."
-            style={{ flex: 1, padding: "12px 16px", borderRadius: "var(--radius-md)", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--text-main)" }}
-          />
-          <button type="submit" className="button" disabled={!input.trim() || loading} style={{ padding: "0 20px" }}>
-            <Send size={18} />
-          </button>
-        </form>
+        <div className="proto-card" style={{ overflow: "hidden", display: "grid", gridTemplateRows: "1fr auto" }}>
+          <div style={{ padding: 26, display: "grid", gap: 16, maxHeight: 440, overflowY: "auto" }}>
+            {messages.map((msg, idx) => (
+              <div key={idx} style={{ display: "flex", gap: 12, alignItems: "flex-start", flexDirection: msg.role === "user" ? "row-reverse" : "row" }}>
+                {msg.role === "assistant" ? (
+                  <span style={{ display: "inline-flex", width: 34, height: 34, flexShrink: 0, alignItems: "center", justifyContent: "center", borderRadius: 10, background: "var(--primary-soft)", color: "var(--primary)" }}><Bot size={17} /></span>
+                ) : (
+                  <span style={{ display: "inline-flex", width: 34, height: 34, flexShrink: 0, alignItems: "center", justifyContent: "center", borderRadius: 10, background: "var(--primary)", color: "#fff", fontSize: ".78rem", fontWeight: 700 }}>{userName.slice(0, 2).toUpperCase()}</span>
+                )}
+                <div style={{ background: msg.role === "user" ? "var(--primary)" : "var(--surface-2)", color: msg.role === "user" ? "#fff" : "var(--text)", borderRadius: msg.role === "user" ? "16px 4px 16px 16px" : "4px 16px 16px 16px", padding: "15px 18px", maxWidth: "78%", lineHeight: 1.6, fontSize: ".96rem", whiteSpace: "pre-wrap" }}>{msg.content}</div>
+              </div>
+            ))}
+            {loading && <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ display: "inline-flex", width: 34, height: 34, alignItems: "center", justifyContent: "center", borderRadius: 10, background: "var(--primary-soft)", color: "var(--primary)" }}><Bot size={17} /></span><div style={{ background: "var(--surface-2)", borderRadius: "4px 16px 16px 16px", padding: "15px 18px", color: "var(--muted)" }}><Loader2 className="spin" size={16} style={{ display: "inline", marginRight: 8 }} /> Pensando...</div></div>}
+            <div ref={endRef} />
+          </div>
+          <form onSubmit={sendMessage} style={{ borderTop: "1px solid var(--border)", padding: 16, display: "flex", gap: 10, alignItems: "center", background: "var(--surface)" }}>
+            <div className="proto-field" style={{ flex: 1 }}><input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Escreva sua pergunta ao mentor…" /></div>
+            <button type="submit" className="proto-btn primary" style={{ width: 48, height: 48, padding: 0 }} disabled={!input.trim() || loading}><Send size={20} /></button>
+          </form>
+        </div>
+        <p style={{ margin: "16px 0 0", textAlign: "center", color: "var(--faint)", fontSize: ".84rem", lineHeight: 1.6 }}>O mentor IA oferece sugestões de estudo e carreira. Não substitui orientação profissional especializada.</p>
       </div>
     </main>
   );

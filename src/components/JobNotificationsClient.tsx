@@ -45,32 +45,24 @@ export function JobNotificationsClient() {
   }
 
   if (items.length === 0) {
-    return (
-      <div className="card empty-state">
-        <Bell size={40} />
-        <p>Nenhuma notificação ainda.</p>
-        <p className="muted">Quando novas vagas compatíveis forem encontradas, você verá aqui.</p>
-      </div>
-    );
+    return <div className="proto-card empty-state" style={{ padding: 48 }}><Bell size={40} color="var(--primary)" /><p>Nenhuma notificação ainda.</p><p className="muted">Quando novas vagas compatíveis forem encontradas, você verá aqui.</p></div>;
   }
 
   return (
     <div style={{ display: "grid", gap: 12 }}>
       <div className="job-actions" style={{ justifyContent: "flex-end" }}>
-        <button className="button ghost" onClick={markAll}>Marcar todas como lidas</button>
+        <button className="proto-btn" onClick={markAll}>Marcar todas como lidas</button>
       </div>
       {items.map((n) => (
-        <div key={n.id} className={`notification-item${n.read ? "" : " unread"}`}>
+        <div key={n.id} className={`notification-item${n.read ? "" : " unread"}`} style={{ background: n.read ? "var(--surface)" : "var(--primary-soft)", borderColor: n.read ? "var(--border)" : "color-mix(in srgb,var(--primary) 30%,transparent)" }}>
           <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
             <span className={`notification-dot${n.read ? " read" : ""}`} />
             <div>
               <p style={{ margin: 0, fontWeight: n.read ? 500 : 700 }}>{n.message}</p>
-              <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.85rem" }}>
-                {new Date(n.createdAt).toLocaleString("pt-BR")} · {n.jobCount} vaga(s)
-              </p>
+              <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.85rem" }}>{new Date(n.createdAt).toLocaleString("pt-BR")} · {n.jobCount} vaga(s)</p>
             </div>
           </div>
-          <a href="/vagas" className="button secondary" style={{ minHeight: 40, padding: "0 16px" }}>Ver vagas</a>
+          <a href="/vagas" className="proto-btn" style={{ height: 40 }}>Ver vagas</a>
         </div>
       ))}
     </div>
