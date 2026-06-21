@@ -1,12 +1,10 @@
 import { CathoProvider, GupyProvider, IndeedBrasilProvider, InfoJobsProvider, VagasComProvider } from "./partner-jobs";
-import { GoogleDriveProvider } from "./google-drive";
 import { LinkedInProvider } from "./linkedin";
 import { ManualAssistedProvider } from "./manual-assisted";
 import type { JobProvider } from "./base";
 
 const providers = new Map<string, JobProvider>([
   ["linkedin", new LinkedInProvider()],
-  ["google-drive", new GoogleDriveProvider()],
   ["gupy", new GupyProvider()],
   ["catho", new CathoProvider()],
   ["vagas-com-br", new VagasComProvider()],

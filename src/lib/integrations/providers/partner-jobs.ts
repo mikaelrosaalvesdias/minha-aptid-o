@@ -9,22 +9,22 @@ export class PartnerJobProvider extends JobProvider {
   slug = this.providerSlug;
   name = this.providerName;
 
-  async searchJobs() {
+  async searchJobs(): Promise<Record<string, unknown>> {
     this.requireEnv("PARTNER_JOBS_API_KEY");
     throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_REQUIRES_PARTNER_ACCESS, `${this.name} requer API/parceria configurada.`);
   }
 
-  async importJobs() {
+  async importJobs(): Promise<Record<string, unknown>> {
     this.requireEnv("PARTNER_JOBS_API_KEY");
     throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_REQUIRES_PARTNER_ACCESS, `${this.name} requer API/parceria configurada.`);
   }
 
-  async getJobDetails() {
+  async getJobDetails(): Promise<Record<string, unknown>> {
     this.requireEnv("PARTNER_JOBS_API_KEY");
     throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_REQUIRES_PARTNER_ACCESS, `${this.name} requer API/parceria configurada.`);
   }
 
-  async submitApplication() {
+  async submitApplication(): Promise<Record<string, unknown>> {
     throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_REQUIRES_PARTNER_ACCESS, `${this.name} não permite candidatura automática sem API/parceria oficial.`);
   }
 }

@@ -17,24 +17,12 @@ export const integrationProviders: IntegrationSeed[] = [
     slug: "linkedin",
     type: "profile_network",
     authType: "composio",
-    status: "pending_credentials",
+    status: "active",
     capabilities: ["connect_account", "sync_profile", "publish_resume_link"],
     scopes: ["r_liteprofile", "r_emailaddress", "w_member_social"],
     environment: "production",
     isVisibleToUsers: true,
-    notes: "Preparado para Composio/OAuth oficial. Candidatura automática não será oferecida enquanto a API não permitir submissão real."
-  },
-  {
-    name: "Google Drive",
-    slug: "google-drive",
-    type: "resume_storage",
-    authType: "composio",
-    status: "pending_credentials",
-    capabilities: ["connect_account", "upload_resume", "export_pdf"],
-    scopes: ["drive.file"],
-    environment: "production",
-    isVisibleToUsers: true,
-    notes: "Preparado para salvar/exportar currículo via Composio ou OAuth oficial do Google."
+    notes: "Integração via Composio. Conecta, sincroniza perfil e publica post com link do currículo."
   },
   {
     name: "Gupy",

@@ -31,44 +31,48 @@ export abstract class JobProvider {
     return process.env[name] as string;
   }
 
-  async connectAccount(_userId: string, _redirectUrl: string, _context: ProviderContext) {
+  async connectAccount(_userId: string, _redirectUrl: string, _context: ProviderContext): Promise<Record<string, unknown>> {
     throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_CAPABILITY_NOT_AVAILABLE, "Conexão externa não disponível para este provider.");
   }
 
-  async handleCallback(_payload: unknown, _context: ProviderContext) {
+  async handleCallback(_payload: unknown, _context: ProviderContext): Promise<Record<string, unknown>> {
     throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_CAPABILITY_NOT_AVAILABLE, "Callback não disponível para este provider.");
   }
 
-  async disconnectAccount(_connectionId: string, _context: ProviderContext) {
+  async disconnectAccount(_connectionId: string, _context: ProviderContext): Promise<Record<string, unknown>> {
     throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_CAPABILITY_NOT_AVAILABLE, "Desconexão não disponível para este provider.");
   }
 
-  async syncProfile(_connection: UserExternalConnection, _context: ProviderContext) {
+  async syncProfile(_connection: UserExternalConnection, _context: ProviderContext): Promise<Record<string, unknown>> {
     throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_CAPABILITY_NOT_AVAILABLE, "Sincronização de perfil não disponível para este provider.");
   }
 
-  async searchJobs(_filters: Record<string, unknown>, _context: ProviderContext) {
+  async searchJobs(_filters: Record<string, unknown>, _context: ProviderContext): Promise<Record<string, unknown>> {
     throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_CAPABILITY_NOT_AVAILABLE, "Busca de vagas não disponível para este provider.");
   }
 
-  async importJobs(_filters: Record<string, unknown>, _context: ProviderContext) {
+  async importJobs(_filters: Record<string, unknown>, _context: ProviderContext): Promise<Record<string, unknown>> {
     throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_CAPABILITY_NOT_AVAILABLE, "Importação de vagas não disponível para este provider.");
   }
 
-  async getJobDetails(_externalJobId: string, _context: ProviderContext) {
+  async getJobDetails(_externalJobId: string, _context: ProviderContext): Promise<Record<string, unknown>> {
     throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_CAPABILITY_NOT_AVAILABLE, "Detalhes da vaga não disponíveis para este provider.");
   }
 
-  async submitApplication(_userId: string, _jobId: string, _resumeVersionId: string | null, _context: ProviderContext) {
+  async submitApplication(_userId: string, _jobId: string, _resumeVersionId: string | null, _context: ProviderContext): Promise<Record<string, unknown>> {
     throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_CAPABILITY_NOT_AVAILABLE, "Candidatura automática não disponível para este provider.");
   }
 
-  async getApplicationStatus(_applicationId: string, _context: ProviderContext) {
+  async getApplicationStatus(_applicationId: string, _context: ProviderContext): Promise<Record<string, unknown>> {
     throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_CAPABILITY_NOT_AVAILABLE, "Status de candidatura não disponível para este provider.");
   }
 
-  async uploadResume(_userId: string, _resumeVersionId: string, _context: ProviderContext) {
+  async uploadResume(_userId: string, _resumeVersionId: string, _context: ProviderContext): Promise<Record<string, unknown>> {
     throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_CAPABILITY_NOT_AVAILABLE, "Upload de currículo não disponível para este provider.");
+  }
+
+  async publishResumeLink(_userId: string, _connection: UserExternalConnection, _resumeUrl: string, _commentary: string): Promise<Record<string, unknown>> {
+    throw new IntegrationError(INTEGRATION_ERRORS.PROVIDER_CAPABILITY_NOT_AVAILABLE, "Publicação de link do currículo não disponível para este provider.");
   }
 
   async healthcheck(context: ProviderContext) {
