@@ -1,54 +1,32 @@
-import Link from "next/link";
-import { ArrowLeft, ShieldCheck, Trash2, Lock } from "lucide-react";
-
 export const dynamic = "force-dynamic";
 
 export default function PrivacyPage() {
   return (
-    <main className="section">
-      <div className="page-shell privacy-page">
-        <Link href="/" className="button ghost">
-          <ArrowLeft size={18} /> Voltar
-        </Link>
-        <div className="privacy-card card">
-          <ShieldCheck size={34} />
-          <h1>Privacidade e LGPD</h1>
-          <p>
-            O Mapa de Aptidão usa suas respostas apenas para gerar o resultado do teste, sugerir perfis profissionais,
-            cursos gratuitos, vídeos, testes práticos e buscar vagas compatíveis. Nome e e-mail são opcionais.
-          </p>
-          <ul>
-            <li>Você pode fazer o teste sem informar nome ou e-mail.</li>
-            <li>Não coletamos dados sensíveis desnecessários.</li>
-            <li>Não vendemos nem compartilhamos seus dados pessoais.</li>
-            <li>O resultado é acessado por um identificador único e não aparece para outros visitantes.</li>
-            <li>Na página de resultado existe um botão para apagar a sessão e suas respostas.</li>
-          </ul>
-          <div className="warning-box">
-            <Trash2 size={18} />
-            <span>Apagar o resultado remove a sessão, respostas e resultado vinculados no banco de dados.</span>
-          </div>
-        </div>
+    <main style={{ maxWidth: 780, margin: "0 auto", padding: "clamp(34px,6vw,72px) clamp(20px,5vw,40px)", display: "grid", gap: 24 }}>
+      <span style={{ fontSize: ".8rem", letterSpacing: ".14em", textTransform: "uppercase", color: "var(--primary)", fontWeight: 700 }}>Privacidade</span>
+      <h1 style={{ fontFamily: "var(--font-head)", fontWeight: 500, fontSize: "clamp(2.2rem,4.6vw,3.2rem)", lineHeight: 1.1, letterSpacing: "-0.025em", margin: 0 }}>Seus dados são seus</h1>
 
-        <div className="privacy-card card">
-          <Lock size={34} />
-          <h2>Área de Vagas e candidaturas</h2>
-          <p>
-            A área de Vagas busca oportunidades compatíveis com seu perfil e pode candidatar-se automaticamente
-            em seu nome usando o currículo salvo no seu perfil.
-          </p>
-          <ul>
-            <li><strong>O app não armazena senhas de LinkedIn, Indeed, Vagas.com ou qualquer outro site de vagas.</strong></li>
-            <li>A candidatura automática acontece apenas em sistemas de seleção com API pública (Greenhouse, Lever) — projetados para receber candidaturas sem login.</li>
-            <li>Seus dados (nome, e-mail, telefone, currículo) são enviados diretamente ao sistema da empresa candidatada, não a intermediários.</li>
-            <li>Para sites que exigem login, o app abre a vaga e copia seus dados para você colar no formulário. Você faz a candidatura no seu próprio navegador, já logado.</li>
-            <li>O consentimento é pedido antes de cada publicação em lote e fica registrado com data, hora e lista de vagas.</li>
-            <li>Você pode apagar seu histórico de candidaturas a qualquer momento na página de perfil.</li>
+      <div style={{ display: "flex", gap: 14, alignItems: "center", padding: "18px 22px", background: "var(--primary-soft)", border: "1px solid color-mix(in srgb,var(--primary) 18%,transparent)", borderRadius: 16, color: "var(--text)" }}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+        <span style={{ fontSize: ".96rem", lineHeight: 1.5 }}>Nunca armazenamos senhas de plataformas de terceiros e não tentamos burlar login, captcha ou bloqueios.</span>
+      </div>
+
+      <div style={{ display: "grid", gap: 22, color: "var(--muted)", lineHeight: 1.75, fontSize: "1.02rem" }}>
+        <div>
+          <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 600, fontSize: "1.2rem", margin: "0 0 8px", color: "var(--text)" }}>O que coletamos</h3>
+          <p style={{ margin: 0 }}>Apenas o necessário para o funcionamento: dados do seu perfil, respostas do teste e o conteúdo do seu currículo. Tudo para gerar suas recomendações.</p>
+        </div>
+        <div>
+          <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 600, fontSize: "1.2rem", margin: "0 0 8px", color: "var(--text)" }}>Seu controle</h3>
+          <ul style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 8 }}>
+            <li>Você pode editar ou remover seus arquivos a qualquer momento.</li>
+            <li>Candidaturas só acontecem com o seu consentimento.</li>
+            <li>Você pode apagar sua conta e seus dados.</li>
           </ul>
-          <div className="warning-box" style={{ background: "rgba(16,185,129,0.1)", borderColor: "rgba(16,185,129,0.2)", color: "#6ee7b7" }}>
-            <ShieldCheck size={18} />
-            <span>O Minha Aptidão não é responsável por senhas ou contas de plataformas terceiras. A responsabilidade sobre suas contas externas é exclusivamente sua.</span>
-          </div>
+        </div>
+        <div>
+          <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 600, fontSize: "1.2rem", margin: "0 0 8px", color: "var(--text)" }}>Portais externos</h3>
+          <p style={{ margin: 0 }}>Greenhouse, LinkedIn, Indeed e outros são tratados conforme suas regras públicas. Quando exigem ação manual, preparamos um pacote para você concluir com segurança.</p>
         </div>
       </div>
     </main>
