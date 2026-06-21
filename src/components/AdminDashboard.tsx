@@ -13,6 +13,7 @@ type Overview = {
   questions: AdminQuestion[];
   profiles: AdminProfile[];
   courses: AdminCourse[];
+  integrationProviders: AdminIntegrationProvider[];
   logs: { id: string; level: string; message: string; createdAt: string }[];
 };
 
@@ -50,6 +51,27 @@ type AdminCourse = {
   order: number;
 };
 
+type AdminIntegrationProvider = {
+  id: string;
+  name: string;
+  slug: string;
+  type: string;
+  authType: string;
+  status: string;
+  baseUrl: string | null;
+  capabilities: string[];
+  scopes: string[];
+  isVisibleToUsers: boolean;
+  environment: string;
+  dailyLimit: number;
+  monthlyLimit: number;
+  lastHealthcheckAt: string | null;
+  lastHealthcheckStatus: string | null;
+  lastError: string | null;
+  activeAt: string | null;
+  notes: string | null;
+};
+
 const emptyCourse = {
   profileSlug: "",
   title: "",
@@ -73,12 +95,37 @@ function fromLines(value: string) {
     .filter(Boolean);
 }
 
+function toProviderForm(provider: AdminIntegrationProvider) {
+  return {
+    id: provider.id,
+    name: provider.name,
+    slug: provider.slug,
+    type: provider.type,
+    authType: provider.authType,
+    status: provider.status,
+    baseUrl: provider.baseUrl ?? "",
+    capabilities: provider.capabilities,
+    scopes: provider.scopes,
+    isVisibleToUsers: provider.isVisibleToUsers,
+    environment: provider.environment,
+    dailyLimit: provider.dailyLimit,
+    monthlyLimit: provider.monthlyLimit,
+    notes: provider.notes ?? "",
+    clientId: "",
+    clientSecret: "",
+    apiKey: "",
+    webhookSecret: ""
+  };
+}
+
 export function AdminDashboard() {
   const router = useRouter();
   const [overview, setOverview] = useState<Overview | null>(null);
   const [message, setMessage] = useState("");
   const [selectedProfileSlug, setSelectedProfileSlug] = useState("");
   const [newCourse, setNewCourse] = useState(emptyCourse);
+  const [selectedIntegrationProviderId, setSelectedIntegrationProviderId] = useState("");
+  const [integrationProviderForm, setIntegrationProviderForm] = useState<Partial<AdminIntegrationProvider> & { clientId?: string; clientSecret?: string; apiKey?: string; webhookSecret?: string }>({});
   const [atsBoards, setAtsBoards] = useState<Array<{ id: string; source: string; boardKey: string; label: string; active: boolean }>>([]);
   const [newBoard, setNewBoard] = useState({ source: "greenhouse" as "greenhouse" | "lever", boardKey: "", label: "" });
 
@@ -91,7 +138,9 @@ export function AdminDashboard() {
     const data = await response.json();
     setOverview(data);
     setSelectedProfileSlug((current) => current || data.profiles?.[0]?.slug || "");
+    setSelectedIntegrationProviderId((current) => current || data.integrationProviders?.[0]?.id || "");
     setNewCourse((current) => ({ ...current, profileSlug: data.profiles?.[0]?.slug || "" }));
+    if (data.integrationProviders?.[0]) setIntegrationProviderForm(toProviderForm(data.integrationProviders[0]));
   }
 
   async function loadAtsBoards() {
@@ -112,6 +161,14 @@ export function AdminDashboard() {
   const selectedProfile = useMemo(() => {
     return overview?.profiles.find((profile) => profile.slug === selectedProfileSlug) ?? null;
   }, [overview, selectedProfileSlug]);
+
+  const selectedIntegrationProvider = useMemo(() => {
+    return overview?.integrationProviders.find((provider) => provider.id === selectedIntegrationProviderId) ?? null;
+  }, [overview, selectedIntegrationProviderId]);
+
+  useEffect(() => {
+    if (selectedIntegrationProvider) setIntegrationProviderForm(toProviderForm(selectedIntegrationProvider));
+  }, [selectedIntegrationProviderId, selectedIntegrationProvider]);
 
   async function createBoard() {
     if (!newBoard.boardKey.trim() || !newBoard.label.trim()) return;
@@ -196,6 +253,68 @@ export function AdminDashboard() {
     setMessage(response.ok ? "Fonte de curso criada." : "Não foi possível criar a fonte.");
     setNewCourse({ ...emptyCourse, profileSlug: newCourse.profileSlug });
     await load();
+  }
+
+  async function createIntegrationProvider() {
+    setMessage("");
+    const response = await fetch("/api/admin/integrations/providers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: integrationProviderForm.name || "Novo provider",
+        slug: integrationProviderForm.slug || "novo-provider",
+        type: integrationProviderForm.type || "job_distribution",
+        authType: integrationProviderForm.authType || "not_available",
+        status: integrationProviderForm.status || "pending_credentials",
+        baseUrl: integrationProviderForm.baseUrl || null,
+        scopes: integrationProviderForm.scopes || [],
+        capabilities: integrationProviderForm.capabilities || [],
+        isVisibleToUsers: Boolean(integrationProviderForm.isVisibleToUsers),
+        environment: integrationProviderForm.environment || "production",
+        dailyLimit: Number(integrationProviderForm.dailyLimit || 0),
+        monthlyLimit: Number(integrationProviderForm.monthlyLimit || 0),
+        notes: integrationProviderForm.notes || null
+      })
+    });
+    setMessage(response.ok ? "Provider de integração criado." : "Não foi possível criar o provider.");
+    await load();
+  }
+
+  async function saveIntegrationProvider() {
+    if (!integrationProviderForm.id) return;
+    setMessage("");
+    const response = await fetch(`/api/admin/integrations/providers/${integrationProviderForm.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...integrationProviderForm,
+        baseUrl: integrationProviderForm.baseUrl || null,
+        clientId: integrationProviderForm.clientId || undefined,
+        clientSecret: integrationProviderForm.clientSecret || undefined,
+        apiKey: integrationProviderForm.apiKey || undefined,
+        webhookSecret: integrationProviderForm.webhookSecret || undefined
+      })
+    });
+    const data = await response.json();
+    setMessage(response.ok ? "Provider salvo." : data.error || "Não foi possível salvar o provider.");
+    await load();
+  }
+
+  async function runIntegrationAction(action: "test" | "enable" | "disable") {
+    if (!integrationProviderForm.id) return;
+    setMessage("");
+    const response = await fetch(`/api/admin/integrations/providers/${integrationProviderForm.id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action })
+    });
+    const data = await response.json();
+    setMessage(response.ok ? (action === "test" ? `Teste: ${data.message || "ok"}` : "Provider atualizado.") : data.error || "Não foi possível executar a ação.");
+    await load();
+  }
+
+  function updateIntegrationProvider(patch: Partial<AdminIntegrationProvider> & { clientId?: string; clientSecret?: string; apiKey?: string; webhookSecret?: string }) {
+    setIntegrationProviderForm((current) => ({ ...current, ...patch }));
   }
 
   async function toggleCourse(course: AdminCourse) {
@@ -426,7 +545,75 @@ export function AdminDashboard() {
       </section>
 
       <section className="admin-section card">
-        <h2>Fontes de Vagas (ATS)</h2>
+        <h2>Integrações de Vagas</h2>
+        <p className="muted" style={{ margin: 0 }}>
+          Providers configuráveis para conexão externa, armazenamento de currículo e candidatura assistida. Providers sem API real ficam como pendentes e não exibem botão falso.
+        </p>
+        <div className="course-admin-form" style={{ marginTop: 16 }}>
+          <select value={selectedIntegrationProviderId} onChange={(event) => setSelectedIntegrationProviderId(event.target.value)}>
+            {overview.integrationProviders.map((provider) => (
+              <option value={provider.id} key={provider.id}>
+                {provider.name} · {provider.status}
+              </option>
+            ))}
+          </select>
+          <button className="button secondary" type="button" onClick={() => runIntegrationAction("test")}>Testar</button>
+          <button className="button secondary" type="button" onClick={() => runIntegrationAction("enable")}>Ativar</button>
+          <button className="button secondary" type="button" onClick={() => runIntegrationAction("disable")}>Desativar</button>
+          <button className="button" type="button" onClick={saveIntegrationProvider}>Salvar provider</button>
+          <button className="button secondary" type="button" onClick={createIntegrationProvider}>Criar provider</button>
+        </div>
+        <div className="course-admin-form" style={{ marginTop: 16 }}>
+          <input placeholder="Nome" value={integrationProviderForm.name ?? ""} onChange={(event) => updateIntegrationProvider({ name: event.target.value })} />
+          <input placeholder="Slug" value={integrationProviderForm.slug ?? ""} onChange={(event) => updateIntegrationProvider({ slug: event.target.value })} />
+          <select value={integrationProviderForm.authType ?? "not_available"} onChange={(event) => updateIntegrationProvider({ authType: event.target.value })}>
+            <option value="oauth">oauth</option>
+            <option value="api_key">api_key</option>
+            <option value="bearer_token">bearer_token</option>
+            <option value="partner_api">partner_api</option>
+            <option value="composio">composio</option>
+            <option value="manual_assisted">manual_assisted</option>
+            <option value="not_available">not_available</option>
+          </select>
+          <select value={integrationProviderForm.status ?? "pending_credentials"} onChange={(event) => updateIntegrationProvider({ status: event.target.value })}>
+            <option value="active">active</option>
+            <option value="disabled">disabled</option>
+            <option value="sandbox">sandbox</option>
+            <option value="pending_credentials">pending_credentials</option>
+            <option value="pending_partner_access">pending_partner_access</option>
+            <option value="error">error</option>
+            <option value="deprecated">deprecated</option>
+            <option value="manual_assisted">manual_assisted</option>
+          </select>
+          <input placeholder="Base URL" value={integrationProviderForm.baseUrl ?? ""} onChange={(event) => updateIntegrationProvider({ baseUrl: event.target.value })} />
+          <select value={integrationProviderForm.environment ?? "production"} onChange={(event) => updateIntegrationProvider({ environment: event.target.value })}>
+            <option value="production">production</option>
+            <option value="sandbox">sandbox</option>
+          </select>
+          <input type="number" placeholder="Limite diário" value={integrationProviderForm.dailyLimit ?? 0} onChange={(event) => updateIntegrationProvider({ dailyLimit: Number(event.target.value) })} />
+          <input type="number" placeholder="Limite mensal" value={integrationProviderForm.monthlyLimit ?? 0} onChange={(event) => updateIntegrationProvider({ monthlyLimit: Number(event.target.value) })} />
+          <label style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 600 }}>
+            <input type="checkbox" checked={Boolean(integrationProviderForm.isVisibleToUsers)} onChange={(event) => updateIntegrationProvider({ isVisibleToUsers: event.target.checked })} />
+            Visível no perfil
+          </label>
+          <textarea placeholder="Observações internas" value={integrationProviderForm.notes ?? ""} onChange={(event) => updateIntegrationProvider({ notes: event.target.value })} />
+          <input placeholder="Novo Client ID" value={integrationProviderForm.clientId ?? ""} onChange={(event) => updateIntegrationProvider({ clientId: event.target.value })} />
+          <input placeholder="Novo Client Secret" value={integrationProviderForm.clientSecret ?? ""} onChange={(event) => updateIntegrationProvider({ clientSecret: event.target.value })} />
+          <input placeholder="Nova API Key" value={integrationProviderForm.apiKey ?? ""} onChange={(event) => updateIntegrationProvider({ apiKey: event.target.value })} />
+          <input placeholder="Novo Webhook Secret" value={integrationProviderForm.webhookSecret ?? ""} onChange={(event) => updateIntegrationProvider({ webhookSecret: event.target.value })} />
+        </div>
+        <div className="course-admin-form" style={{ marginTop: 16 }}>
+          {["connect_account", "sync_profile", "search_jobs", "import_jobs", "match_jobs", "upload_resume", "submit_application", "publish_resume_link", "get_application_status", "webhooks", "external_redirect", "manual_apply"].map((capability) => (
+            <label key={capability} style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 600 }}>
+              <input type="checkbox" checked={(integrationProviderForm.capabilities ?? []).includes(capability)} onChange={(event) => updateIntegrationProvider({ capabilities: event.target.checked ? [...(integrationProviderForm.capabilities ?? []), capability] : (integrationProviderForm.capabilities ?? []).filter((item) => item !== capability) })} />
+              {capability}
+            </label>
+          ))}
+        </div>
+        {integrationProviderForm.lastError && <div className="warning-box" style={{ marginTop: 16 }}>Último erro: {integrationProviderForm.lastError}</div>}
+      </section>
+
+      <section className="admin-section card">
         <p className="muted" style={{ margin: 0 }}>
           Boards Greenhouse e Lever públicos usados na busca de vagas com candidatura automática.
         </p>

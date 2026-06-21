@@ -27,6 +27,10 @@ model User {
   jobSearches   JobSearchHistory[]
   resume        Resume?
   resumeVersions ResumeVersion[]
+  externalConnections UserExternalConnection[]
+  externalJobApplications ExternalJobApplication[]
+  jobMatches JobMatch[]
+  integrationLogs IntegrationLog[]
 }
 
 model AuthSession {
@@ -408,6 +412,13 @@ model ResumeVersion {
   useForAutoApply   Boolean  @default(false)
   useForManualApply Boolean  @default(false)
   useForAreas       Json     @default("[]")
+  driveFileId       String?
+  driveFileUrl      String?
+  driveExportUrl    String?
+  targetExternalJob ExternalJob? @relation(fields: [targetExternalJobId], references: [id], onDelete: SetNull)
+  targetExternalJobId String?
+  matches JobMatch[]
+  externalApplications ExternalJobApplication[]
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -432,3 +443,188 @@ model ATSBoard {
 
   @@unique([source, boardKey])
 }
+
+// ===== Job Distribution & Profile Integration Layer (v1.7.0) =====
+
+model IntegrationProvider {
+  id                    String   @id @default(cuid())
+  name                  String
+  slug                  String   @unique
+  type                  String   @default("job_distribution")
+  authType              String   @default("not_available")
+  status                String   @default("pending_credentials")
+  baseUrl               String?
+  clientIdEncrypted     String?
+  clientSecretEncrypted String?
+  apiKeyEncrypted       String?
+  webhookSecretEncrypted String?
+  scopesJson            Json     @default("[]")
+  capabilitiesJson      Json     @default("[]")
+  settingsJson          Json     @default("{}")
+  isVisibleToUsers      Boolean  @default(false)
+  environment           String   @default("production")
+  dailyLimit            Int      @default(0)
+  monthlyLimit          Int      @default(0)
+  lastHealthcheckAt     DateTime?
+  lastHealthcheckStatus String?
+  lastError             String?
+  activeAt              DateTime?
+  notes                 String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  connections          UserExternalConnection[]
+  externalJobs         ExternalJob[]
+  externalApplications ExternalJobApplication[]
+  logs                 IntegrationLog[]
+  rateLimits           IntegrationRateLimit[]
+
+  @@index([status])
+  @@index([isVisibleToUsers])
+}
+
+model UserExternalConnection {
+  id                     String   @id @default(cuid())
+  userId                 String
+  providerId             String
+  providerSlug           String
+  externalAccountId      String?
+  externalAccountName    String?
+  externalEmail          String?
+  connectionStatus       String   @default("pending")
+  authType               String   @default("not_available")
+  accessTokenEncrypted   String?
+  refreshTokenEncrypted  String?
+  tokenExpiresAt         DateTime?
+  composioEntityId       String?
+  composioConnectionId   String?
+  scopesJson             Json     @default("[]")
+  metadataJson           Json     @default("{}")
+  lastSyncAt             DateTime?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider   IntegrationProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, providerId])
+  @@index([userId, connectionStatus])
+  @@index([providerSlug])
+}
+
+model ExternalJob {
+  id              String   @id @default(cuid())
+  providerId      String?
+  providerSlug    String
+  externalJobId   String?
+  title           String
+  companyName     String?
+  location        String?
+  remoteType      String?
+  contractType    String?
+  salaryMin       Float?
+  salaryMax       Float?
+  description     String?
+  requirementsJson Json    @default("[]")
+  benefitsJson     Json    @default("[]")
+  applicationUrl  String?
+  sourceUrl       String?
+  metadataJson     Json    @default("{}")
+  publishedAt     DateTime?
+  expiresAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  provider    IntegrationProvider? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  applications ExternalJobApplication[]
+  matches      JobMatch[]
+  resumeVersions ResumeVersion[]
+
+  @@unique([providerSlug, externalJobId])
+  @@index([providerSlug])
+  @@index([title])
+}
+
+model JobMatch {
+  id                            String   @id @default(cuid())
+  userId                        String
+  externalJobId                 String
+  matchScore                    Int      @default(0)
+  matchReason                   String?
+  missingSkillsJson             Json     @default("[]")
+  recommendedCoursesJson        Json     @default("[]")
+  recommendedResumeVersionId    String?
+  status                        String   @default("suggested")
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  externalJob   ExternalJob   @relation(fields: [externalJobId], references: [id], onDelete: Cascade)
+  resumeVersion ResumeVersion? @relation(fields: [recommendedResumeVersionId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, externalJobId])
+  @@index([userId, status])
+  @@index([matchScore])
+}
+
+model ExternalJobApplication {
+  id                  String   @id @default(cuid())
+  userId              String
+  externalJobId       String
+  providerId          String?
+  providerSlug        String
+  resumeVersionId     String?
+  applicationStatus   String   @default("pending_user_approval")
+  applicationMode     String   @default("manual_assisted")
+  externalApplicationId String?
+  consentAccepted     Boolean  @default(false)
+  submittedAt         DateTime?
+  lastStatusSyncAt    DateTime?
+  errorMessage        String?
+  metadataJson        Json     @default("{}")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  externalJob     ExternalJob       @relation(fields: [externalJobId], references: [id], onDelete: Cascade)
+  provider        IntegrationProvider? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  resumeVersion   ResumeVersion?    @relation(fields: [resumeVersionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, applicationStatus])
+  @@index([providerSlug])
+}
+
+model IntegrationLog {
+  id                String   @id @default(cuid())
+  userId            String?
+  providerId        String?
+  providerSlug      String
+  action            String
+  status            String
+  requestSummaryJson Json    @default("{}")
+  responseSummaryJson Json   @default("{}")
+  errorMessage      String?
+  createdAt         DateTime @default(now())
+
+  user      User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  provider  IntegrationProvider? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+
+  @@index([providerSlug, createdAt])
+  @@index([status])
+}
+
+model IntegrationRateLimit {
+  id             String   @id @default(cuid())
+  providerSlug   String
+  usedToday      Int      @default(0)
+  usedThisMonth  Int      @default(0)
+  resetAt        DateTime @default(now())
+  monthResetAt   DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  provider IntegrationProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerId String
+
+  @@unique([providerId])
+}
+

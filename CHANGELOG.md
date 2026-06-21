@@ -19,6 +19,26 @@ Categorias de mudança:
 
 ---
 
+## [1.7.0] - 2026-06-21
+
+### Adicionado
+- Camada de integração de vagas e distribuição de currículos (Job Distribution & Profile Integration Layer).
+- Modelos Prisma: `IntegrationProvider`, `UserExternalConnection`, `ExternalJob`, `JobMatch`, `ExternalJobApplication`, `IntegrationLog`, `IntegrationRateLimit`.
+- Provider base abstrato (`JobProvider`) com 12 capacidades e erros controlados (PROVIDER_DISABLED, PROVIDER_NOT_CONFIGURED, etc.).
+- Providers concretos: LinkedIn, Google Drive, Gupy, Catho, Vagas.com, InfoJobs, Indeed Brasil, Manual Assisted.
+- Criptografia AES-256-GCM para tokens/credenciais.
+- Rotas admin: CRUD de providers, healthcheck, logs de integração.
+- Rotas de usuário: conectar/desconectar contas externas, sincronizar perfil, listar candidaturas.
+- Rota de match: `POST /api/jobs/[id]/match` para compatibilidade curriculo-vaga.
+- Seção "Integrações de Vagas" no painel admin.
+- Seção "Contas conectadas" no perfil do usuário com status real.
+- Documentação em `docs/job-integrations.md`.
+
+### Alterado
+- `ResumeVersion` estendido com `driveFileId`, `driveFileUrl`, `driveExportUrl`, `targetExternalJob`.
+
+---
+
 ## [1.6.1] - 2026-06-21
 
 ### Corrigido

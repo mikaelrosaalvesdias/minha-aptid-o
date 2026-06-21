@@ -15,7 +15,7 @@ export async function GET() {
   }
 
   try {
-    const [sessionCount, resultCount, results, questions, profiles, courses, logs, answerAverages] = await Promise.all([
+    const [sessionCount, resultCount, results, questions, profiles, courses, integrationProviders, logs, answerAverages] = await Promise.all([
       prisma.userSession.count(),
       prisma.result.count(),
       prisma.result.findMany({ select: { topProfiles: true, createdAt: true }, orderBy: { createdAt: "desc" }, take: 500 }),
@@ -30,6 +30,7 @@ export async function GET() {
       }),
       prisma.profile.findMany({ orderBy: { name: "asc" } }),
       prisma.courseRecommendation.findMany({ orderBy: [{ profileSlug: "asc" }, { order: "asc" }] }),
+      prisma.integrationProvider.findMany({ orderBy: { name: "asc" } }),
       prisma.appLog.findMany({ orderBy: { createdAt: "desc" }, take: 30 }),
       prisma.answer.groupBy({
         by: ["questionId"],
@@ -90,6 +91,26 @@ export async function GET() {
         searchKeywords: list(profile.searchKeywords)
       })),
       courses,
+      integrationProviders: integrationProviders.map((provider) => ({
+        id: provider.id,
+        name: provider.name,
+        slug: provider.slug,
+        type: provider.type,
+        authType: provider.authType,
+        status: provider.status,
+        baseUrl: provider.baseUrl,
+        capabilities: Array.isArray(provider.capabilitiesJson) ? provider.capabilitiesJson.filter((item) => typeof item === "string") : [],
+        scopes: Array.isArray(provider.scopesJson) ? provider.scopesJson.filter((item) => typeof item === "string") : [],
+        isVisibleToUsers: provider.isVisibleToUsers,
+        environment: provider.environment,
+        dailyLimit: provider.dailyLimit,
+        monthlyLimit: provider.monthlyLimit,
+        lastHealthcheckAt: provider.lastHealthcheckAt?.toISOString() ?? null,
+        lastHealthcheckStatus: provider.lastHealthcheckStatus,
+        lastError: provider.lastError,
+        activeAt: provider.activeAt?.toISOString() ?? null,
+        notes: provider.notes
+      })),
       logs
     });
   } catch (error) {

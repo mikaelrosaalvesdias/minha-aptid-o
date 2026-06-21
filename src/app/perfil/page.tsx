@@ -20,6 +20,9 @@ export default async function ProfilePage() {
   const resumeVersions = await prisma.resumeVersion.count({ where: { userId: user.id } });
   const jobApps = await prisma.jobApplication.count({ where: { userId: user.id } });
   const pendingApps = await prisma.jobApplication.count({ where: { userId: user.id, status: { in: ["aguardando", "em_andamento", "acao_manual"] } } });
+  const integrationProviders = await prisma.integrationProvider.findMany({ where: { isVisibleToUsers: true }, orderBy: { name: "asc" } });
+  const connections = await prisma.userExternalConnection.findMany({ where: { userId: user.id }, include: { provider: true }, orderBy: { createdAt: "desc" } });
+  const connectionByProvider = new Map(connections.map((connection) => [connection.providerSlug, connection]));
 
   const initials = user.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
   const memberSince = sessions[0]?.createdAt ?? new Date();
@@ -59,6 +62,36 @@ export default async function ProfilePage() {
           {pendingApps > 0 && <span style={{ color: "var(--warning)", fontSize: ".85rem", fontWeight: 600 }}>{pendingApps} aguardando ação</span>}
         </div>
       </div>
+
+      <section style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 24, boxShadow: "var(--shadow-card)", padding: "clamp(24px,4vw,36px)", display: "grid", gap: 18 }}>
+        <div>
+          <p className="proto-eyebrow">Contas conectadas</p>
+          <h2 className="proto-title" style={{ fontSize: "1.35rem", margin: 0 }}>Integrações de vagas e currículo</h2>
+          <p className="muted" style={{ margin: "6px 0 0" }}>Apenas integrações com fluxo real configurado permitem conexão. As demais aparecem como pendentes para não criar botão falso.</p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,280px),1fr))", gap: 14 }}>
+          {integrationProviders.map((provider) => {
+            const connection = connectionByProvider.get(provider.slug);
+            const capabilities = Array.isArray(provider.capabilitiesJson) ? provider.capabilitiesJson.filter((item) => typeof item === "string") : [];
+            const canConnect = provider.status === "active" && capabilities.includes("connect_account") && provider.authType !== "not_available";
+            const label = connection ? connection.connectionStatus === "connected" ? "Conectado" : connection.connectionStatus === "expired" ? "Expirado" : connection.connectionStatus === "error" ? "Erro na conexão" : "Pendente" : provider.status === "active" && canConnect ? "Conectar" : provider.status === "pending_partner_access" ? "Em breve" : provider.status === "pending_credentials" ? "Requer autorização" : "Indisponível";
+            return (
+              <div key={provider.id} style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 18, padding: 18, display: "grid", gap: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "start" }}>
+                  <strong>{provider.name}</strong>
+                  <span className="pill">{label}</span>
+                </div>
+                <p className="muted" style={{ margin: 0, fontSize: ".9rem", lineHeight: 1.5 }}>{provider.notes || "Provider preparado, aguardando configuração oficial."}</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {capabilities.slice(0, 4).map((capability) => <span key={capability} className="pill" style={{ fontSize: ".72rem", padding: "4px 8px" }}>{capability.replace(/_/g, " ")}</span>)}
+                </div>
+                {connection && <span className="muted" style={{ fontSize: ".82rem" }}>Última sincronização: {connection.lastSyncAt ? new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" }).format(connection.lastSyncAt) : "Nunca"}</span>}
+                {!connection && canConnect && <span className="pill" style={{ background: "var(--warning-soft)", color: "var(--warning)" }}>Configuração necessária</span>}
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 16 }}>
         {sessions.length > 0 && sessions.map((session) => {

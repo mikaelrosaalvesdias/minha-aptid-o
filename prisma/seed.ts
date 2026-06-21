@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { profiles, courseRecommendations } from "../src/data/profiles";
+import { integrationProviders } from "../src/data/integrations";
 import { aptitudeQuestions } from "../src/data/questions";
 import { capacityTests } from "../src/data/capacity-tests";
 
@@ -24,6 +25,35 @@ async function main() {
       }
     });
     profileIdBySlug.set(profile.slug, saved.id);
+  }
+
+  for (const provider of integrationProviders) {
+    await prisma.integrationProvider.upsert({
+      where: { slug: provider.slug },
+      update: {
+        name: provider.name,
+        type: provider.type,
+        authType: provider.authType,
+        status: provider.status,
+        capabilitiesJson: provider.capabilities,
+        scopesJson: provider.scopes,
+        environment: provider.environment,
+        isVisibleToUsers: provider.isVisibleToUsers,
+        notes: provider.notes
+      },
+      create: {
+        name: provider.name,
+        slug: provider.slug,
+        type: provider.type,
+        authType: provider.authType,
+        status: provider.status,
+        capabilitiesJson: provider.capabilities,
+        scopesJson: provider.scopes,
+        environment: provider.environment,
+        isVisibleToUsers: provider.isVisibleToUsers,
+        notes: provider.notes
+      }
+    });
   }
 
   for (const question of aptitudeQuestions) {
