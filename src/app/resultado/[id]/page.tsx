@@ -23,6 +23,15 @@ function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item) => typeof item === "string") : [];
 }
 
+function safeUrl(url: string) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.href : "";
+  } catch {
+    return "";
+  }
+}
+
 function asCapacityScores(value: unknown): CapacityScore[] {
   return Array.isArray(value) ? (value as CapacityScore[]) : [];
 }
@@ -67,7 +76,7 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
     <main className="ambient-shell">
       <div className="ambient-content">
         <section className="proto-shell-md" style={{ paddingBottom: 16 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 32, alignItems: "end" }}>
+          <div className="result-hero-layout">
             <div>
               <Link href="/teste" className="proto-btn ghost" style={{ width: "max-content", marginBottom: 14 }}><ArrowLeft size={18} /> Refazer teste</Link>
               <p className="proto-eyebrow">Seu resultado está pronto</p>
@@ -83,7 +92,7 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
           </div>
         </section>
 
-        <section className="proto-shell-md" style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 28, alignItems: "start", paddingTop: 16 }}>
+        <section className="result-main-layout">
           <div style={{ display: "grid", gap: 22 }}>
             <section className="proto-card" style={{ padding: "clamp(24px,4vw,32px)", display: "grid", gap: 20 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 11 }}><Target size={22} color="var(--primary)" /><h2 className="proto-title" style={{ fontSize: "1.4rem", margin: 0 }}>Carreiras compatíveis</h2></div>
@@ -112,12 +121,12 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
 
             <section className="proto-card" style={{ padding: "clamp(24px,4vw,32px)", display: "grid", gap: 18 }}>
               <h2 className="proto-title" style={{ fontSize: "1.4rem", margin: 0 }}>Cursos recomendados</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
+              <div className="result-course-summary-grid">
                 {courses.slice(0, 3).map((course) => (
                   <div key={course.id} style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 16, padding: 20, display: "grid", gap: 9 }}>
                     <span style={{ fontSize: ".74rem", letterSpacing: ".08em", textTransform: "uppercase", color: course.isFree ? "var(--success)" : "var(--warning)", fontWeight: 700 }}>{course.isFree ? "Curso gratuito" : "Pago"}</span>
                     <strong style={{ fontSize: "1rem", lineHeight: 1.4 }}>{course.title}</strong>
-                    <Link href={course.url} target="_blank" rel="noreferrer" style={{ color: "var(--primary)", fontWeight: 600, fontSize: ".88rem", display: "inline-flex", alignItems: "center", gap: 6 }}>Acessar <ArrowLeft size={14} style={{ transform: "rotate(180deg)" }} /></Link>
+                    {safeUrl(course.url) ? <Link href={safeUrl(course.url)} target="_blank" rel="noreferrer" style={{ color: "var(--primary)", fontWeight: 600, fontSize: ".88rem", display: "inline-flex", alignItems: "center", gap: 6 }}>Acessar <ArrowLeft size={14} style={{ transform: "rotate(180deg)" }} /></Link> : <span style={{ color: "var(--muted)", fontSize: ".88rem" }}>Link ainda não cadastrado</span>}
                   </div>
                 ))}
                 {courses.length === 0 && <p className="muted">Nenhum curso encontrado ainda. Volte depois para novas recomendações.</p>}
@@ -125,7 +134,7 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
             </section>
           </div>
 
-          <aside style={{ position: "sticky", top: 95, display: "grid", gap: 16 }}>
+          <aside className="result-side" style={{ display: "grid", gap: 16 }}>
             <div className="proto-card" style={{ padding: 26, display: "grid", gap: 13 }}>
               <h3 className="proto-title" style={{ fontSize: "1.2rem", margin: 0 }}>Próximos passos</h3>
               <Link href={`/mentor/${result.id}`} className="proto-btn primary" style={{ width: "100%" }}><Sparkles size={18} /> Falar com mentor IA</Link>
@@ -148,14 +157,14 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 16 }}>
+          <div className="result-detail-grid">
             <div className="proto-card" style={{ padding: 26, display: "grid", gap: 13 }}><h3 className="proto-title" style={{ fontSize: "1.15rem", margin: 0, display: "flex", alignItems: "center", gap: 9 }}><CheckCircle2 size={19} color="var(--success)" />Forças</h3><ul style={{ margin: 0, paddingInlineStart: 18, color: "var(--muted)", lineHeight: 1.8 }}>{strengths.map((item) => <li key={item}>{item}</li>)}</ul></div>
             <div className="proto-card" style={{ padding: 26, display: "grid", gap: 13 }}><h3 className="proto-title" style={{ fontSize: "1.15rem", margin: 0, display: "flex", alignItems: "center", gap: 9 }}><AlertTriangle size={19} color="var(--warning)" />Pontos de atenção</h3><ul style={{ margin: 0, paddingInlineStart: 18, color: "var(--muted)", lineHeight: 1.8 }}>{attentionPoints.map((item) => <li key={item}>{item}</li>)}</ul></div>
           </div>
 
           <div className="proto-card" style={{ padding: "clamp(24px,4vw,32px)", display: "grid", gap: 18 }}>
             <div className="block-title"><GraduationCap size={22} color="var(--primary)" /><h2 className="proto-title" style={{ fontSize: "1.4rem", margin: 0 }}>Cursos e faculdades que combinam</h2></div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 16 }}>
+            <div className="result-detail-grid">
               <div><h3 style={{ margin: 0, fontFamily: "var(--font-head)", fontSize: "1.15rem" }}>Faculdade ou graduação tecnológica</h3><ul style={{ color: "var(--muted)", lineHeight: 1.8 }}>{degreeSuggestions.map((degree) => <li key={degree}>{degree}</li>)}</ul></div>
               <div><h3 style={{ margin: 0, fontFamily: "var(--font-head)", fontSize: "1.15rem" }}>Cursos rápidos para testar</h3><ul style={{ color: "var(--muted)", lineHeight: 1.8 }}>{shortCourses.map((course) => <li key={course}>{course}</li>)}</ul></div>
             </div>
@@ -171,13 +180,13 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
 
           <div className="proto-card" style={{ padding: "clamp(24px,4vw,32px)", display: "grid", gap: 18 }}>
             <div className="block-title"><CalendarDays size={22} color="var(--primary)" /><h2 className="proto-title" style={{ fontSize: "1.4rem", margin: 0 }}>Plano de ação</h2></div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 16 }}>
+            <div className="result-detail-grid">
               <div><h3 style={{ margin: 0, fontFamily: "var(--font-head)", fontSize: "1.15rem" }}>7 dias</h3><ol style={{ color: "var(--muted)", lineHeight: 1.8 }}>{actionPlan7Days().map((item) => <li key={item}>{item}</li>)}</ol></div>
               <div><h3 style={{ margin: 0, fontFamily: "var(--font-head)", fontSize: "1.15rem" }}>30 dias</h3><ol style={{ color: "var(--muted)", lineHeight: 1.8 }}>{actionPlan30Days().map((item) => <li key={item}>{item}</li>)}</ol></div>
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }}>
+          <div className="result-action-grid">
             <Link href={`/mentor/${result.id}`} className="proto-card" style={{ padding: 24, display: "grid", gap: 9 }}><Sparkles size={24} color="var(--primary)" /><strong>Conversar com mentor IA</strong><span className="muted" style={{ fontSize: ".92rem", lineHeight: 1.5 }}>Orientação baseada no seu perfil</span></Link>
             <Link href={`/curriculo/${result.id}`} className="proto-card" style={{ padding: 24, display: "grid", gap: 9 }}><Target size={24} color="var(--primary)" /><strong>Editar currículo</strong><span className="muted" style={{ fontSize: ".92rem", lineHeight: 1.5 }}>Templates, pontuação e exportação</span></Link>
             <Link href="/vagas" className="proto-card" style={{ padding: 24, display: "grid", gap: 9 }}><Users size={24} color="var(--primary)" /><strong>Ver vagas</strong><span className="muted" style={{ fontSize: ".92rem", lineHeight: 1.5 }}>Busca alinhada ao seu perfil</span></Link>

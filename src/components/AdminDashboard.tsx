@@ -416,6 +416,7 @@ export function AdminDashboard() {
               <span>
                 {course.provider} · {course.profileSlug}
               </span>
+              {course.url && <a href={course.url} target="_blank" rel="noreferrer" style={{ color: "var(--primary)", fontWeight: 700, fontSize: ".85rem" }}>Abrir link do curso</a>}
               <button className="button secondary" type="button" onClick={() => toggleCourse(course)}>
                 {course.active ? "Desativar" : "Ativar"}
               </button>

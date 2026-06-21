@@ -9,16 +9,28 @@ export type CourseCardData = {
   isFree: boolean;
 };
 
+function safeUrl(url: string) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.href : "";
+  } catch {
+    return "";
+  }
+}
+
 export function CourseCard({ course }: { course: CourseCardData }) {
+  const url = safeUrl(course.url);
+  const hasUrl = Boolean(url);
+
   return (
-    <a className="course-card card" href={course.url} target="_blank" rel="noreferrer">
+    <a className="course-card card" href={hasUrl ? url : "/cursos"} target={hasUrl ? "_blank" : undefined} rel={hasUrl ? "noreferrer" : undefined} aria-disabled={!hasUrl} onClick={(event) => { if (!hasUrl) event.preventDefault(); }}>
       <div>
         <span className="course-type">{course.type}</span>
         <h3>{course.title}</h3>
         <p>{course.provider}</p>
       </div>
       <span className="course-link">
-        {course.isFree ? "Gratuito" : "Ver detalhes"} <ExternalLink size={16} />
+        {hasUrl ? (course.isFree ? "Abrir curso gratuito" : "Abrir curso") : "Link ainda não cadastrado"} <ExternalLink size={16} />
       </span>
     </a>
   );

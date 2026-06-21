@@ -663,3 +663,46 @@ h1 { font-weight: 500; }
   .proto-tabs { width: 100%; }
   .proto-tabs button, .proto-tabs a { flex: 1; }
 }
+
+/* Cursos */
+.courses-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 320px); gap: 20px; align-items: end; }
+.courses-progress { min-width: 0; }
+.courses-continue { align-items: stretch; }
+.courses-continue-action { white-space: nowrap; }
+.courses-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 18px; }
+.course-card-link { display: flex; flex-direction: column; min-height: 100%; }
+.course-card-link[aria-disabled="true"] { opacity: .68; }
+
+/* Resultado */
+.result-hero-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; align-items: end; }
+.result-main-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; align-items: start; padding-top: 16px; }
+.result-side { position: sticky; top: 95px; }
+.result-course-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.result-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.result-action-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+
+@media (max-width: 900px) {
+  .result-main-layout { grid-template-columns: 1fr; }
+  .result-side { position: static; }
+  .result-action-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  .site-header { flex-direction: column; align-items: stretch; }
+  .nav-links { width: 100%; justify-content: center; gap: 8px; margin-top: 12px; }
+  .nav-links a { padding: 8px 10px; font-size: .9rem; }
+  .courses-hero, .result-hero-layout { grid-template-columns: 1fr; }
+  .courses-continue { align-items: center; }
+  .courses-continue-action { width: 100%; }
+  .result-course-summary-grid, .result-detail-grid { grid-template-columns: 1fr; }
+  .test-intro-grid { grid-template-columns: 1fr; }
+  .question-layout { grid-template-columns: 1fr; }
+  .test-sidebar { position: static; }
+  .scale-grid { grid-template-columns: 1fr; gap: 16px; }
+  .scale-option { grid-template-columns: 48px 1fr; text-align: left; padding: 16px; }
+  .two-columns { grid-template-columns: 1fr; }
+  .profile-card { grid-template-columns: 48px 1fr; }
+  .profile-percent { grid-column: 1 / -1; margin-top: 10px; }
+  .capacity-options label { padding: 8px; }
+  .admin-top { flex-direction: column; align-items: flex-start; }
+}

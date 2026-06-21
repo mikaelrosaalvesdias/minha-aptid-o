@@ -19,6 +19,20 @@ Categorias de mudança:
 
 ---
 
+## [1.6.1] - 2026-06-21
+
+### Corrigido
+- Tela de cursos agora fica responsiva em Android e mobile, com cards, filtros e cabeçalho sem overflow.
+- Links dos cursos passaram a abrir apenas URLs válidas e bloqueiam cards sem URL cadastrada, evitando clique falso em `#`.
+- Cursos do resultado agora usam o mesmo tratamento seguro de links e mostram aviso quando o link ainda não está cadastrado.
+- Tela de resultado ganhou rota direta `/resultado` e link no menu para facilitar o acesso ao último resultado.
+
+### Alterado
+- Página de cursos normaliza perfis antigos/legados e faz fallback para cursos ativos quando não há recomendação específica.
+- Admin agora exibe o link cadastrado de cada curso para conferência.
+
+---
+
 ## [1.6.0] - 2026-06-21
 
 ### Adicionado
