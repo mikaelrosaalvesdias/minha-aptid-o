@@ -19,6 +19,22 @@ Categorias de mudança:
 
 ---
 
+## [1.5.0] - 2026-06-20
+
+### Adicionado
+- Novo design system claro/escuro com tokens CSS, modo claro padrão e alternância para modo escuro persistida em localStorage.
+- Fontes Newsreader (títulos) e Public Sans (corpo) via next/font.
+- Botão de alternância de tema (sol/lua) no header.
+- Novo logotipo: caminho que sobe de um ponto até uma estrela-guia, em badge azul com gradiente.
+- Script anti-flash de tema no head para evitar piscar no carregamento.
+
+### Alterado
+- Identidade visual renovada: paleta branca + azul com sombras suaves azuladas, cantos arredondados e cards com profundidade leve.
+- Header redesenhado com logo em badge, navegação com hover suave e área de ações à direita.
+- Botões, cards, campos, pills, barras de progresso e badges atualizados para o novo padrão visual.
+- Variáveis CSS antigas (accent-primary, bg-main, text-muted, etc.) mantidas como aliases para preservar todos os componentes existentes sem quebrar lógica.
+- Todas as cores agora usam var(--token), permitindo modo escuro automático em toda a plataforma.
+
 ## [1.4.1] - 2026-06-20
 
 ### Corrigido
