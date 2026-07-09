@@ -43,15 +43,23 @@ export default async function CursosPage() {
 
   const courses = await prisma.courseRecommendation.findMany({
     where: { active: true, ...(topProfileSlugs.length > 0 ? { profileSlug: { in: topProfileSlugs } } : {}) },
-    orderBy: [{ profileSlug: "asc" }, { order: "asc" }],
+    orderBy: [{ isFree: "desc" }, { profileSlug: "asc" }, { order: "asc" }],
     take: 12
   });
 
   const visibleCourses = courses.length > 0 ? courses : await prisma.courseRecommendation.findMany({
     where: { active: true },
-    orderBy: [{ profileSlug: "asc" }, { order: "asc" }],
+    orderBy: [{ isFree: "desc" }, { profileSlug: "asc" }, { order: "asc" }],
     take: 12
   });
 
-  return <CursosClient initialCourses={visibleCourses} profileNames={topProfiles} />;
+  const progress = user && visibleCourses.length > 0
+    ? await prisma.userCourseProgress.findMany({
+        where: { userId: user.id, courseId: { in: visibleCourses.map((course) => course.id) } },
+        orderBy: { updatedAt: "desc" },
+        select: { courseId: true, progress: true, completed: true }
+      })
+    : [];
+
+  return <CursosClient initialCourses={visibleCourses} initialProgress={progress} profileNames={topProfiles} isAuthenticated={Boolean(user)} />;
 }

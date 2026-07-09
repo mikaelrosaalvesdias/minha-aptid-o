@@ -15,7 +15,15 @@ type Course = {
 
 type CourseClientProps = {
   initialCourses: Course[];
+  initialProgress: CourseProgress[];
   profileNames: string[];
+  isAuthenticated: boolean;
+};
+
+type CourseProgress = {
+  courseId: string;
+  progress: number;
+  completed: boolean;
 };
 
 const sampleCourses: Course[] = [
@@ -58,11 +66,32 @@ function categoryOf(course: Course) {
   return "dados";
 }
 
-export function CursosClient({ initialCourses, profileNames }: CourseClientProps) {
-  const [filter, setFilter] = useState("todos");
+export function CursosClient({ initialCourses, initialProgress, profileNames, isAuthenticated }: CourseClientProps) {
   const courses = initialCourses.length ? initialCourses : sampleCourses;
-  const filtered = filter === "todos" ? courses : courses.filter((course) => categoryOf(course) === filter);
-  const title = profileNames[0] ? `Cursos para ${profileNames[0]}` : "Cursos para o seu perfil";
+  const hasFreeCourses = courses.some((course) => course.isFree);
+  const [filter, setFilter] = useState(profileNames.length || !hasFreeCourses ? "todos" : "gratuitos");
+  const progressMap = new Map(initialProgress.map((item) => [item.courseId, item]));
+  const filtered = filter === "todos"
+    ? courses
+    : filter === "gratuitos"
+      ? courses.filter((course) => course.isFree)
+      : courses.filter((course) => categoryOf(course) === filter);
+  const resumeCourse = courses.find((course) => (progressMap.get(course.id)?.progress ?? 0) > 0 && !progressMap.get(course.id)?.completed);
+  const firstFreeCourse = courses.find((course) => course.isFree);
+  const progressPercent = courses.length > 0
+    ? Math.round(courses.reduce((total, course) => total + (progressMap.get(course.id)?.progress ?? 0), 0) / courses.length)
+    : 0;
+  const title = profileNames[0] ? `Cursos para ${profileNames[0]}` : "Cursos gratuitos para começar agora";
+
+  function markCourseStarted(course: Course) {
+    if (!isAuthenticated) return;
+    const currentProgress = progressMap.get(course.id)?.progress ?? 0;
+    void fetch("/api/courses/progress", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ courseId: course.id, progress: Math.max(currentProgress, 1), completed: false })
+    });
+  }
 
   return (
     <main className="ambient-shell">
@@ -71,12 +100,12 @@ export function CursosClient({ initialCourses, profileNames }: CourseClientProps
           <div>
             <p className="proto-eyebrow">Trilha de aprendizado</p>
             <h1 className="proto-title" style={{ fontSize: "clamp(1.9rem,3.6vw,2.7rem)" }}>{title}</h1>
-            <p className="proto-subtitle" style={{ maxWidth: 560 }}>Conteúdos gratuitos e pagos, selecionados a partir das suas aptidões. Comece no seu ritmo.</p>
+            <p className="proto-subtitle" style={{ maxWidth: 560 }}>{profileNames[0] ? "Conteúdos gratuitos e pagos, selecionados a partir das suas aptidões. Comece no seu ritmo." : "Você não precisa concluir o teste para estudar. Explore conteúdos gratuitos e descubra o que combina com você."}</p>
           </div>
           <div className="proto-card courses-progress" style={{ padding: "20px 24px", textAlign: "center" }}>
-            <div style={{ fontFamily: "var(--font-head)", fontSize: "2rem", fontWeight: 600, color: "var(--primary)", lineHeight: 1 }}>32%</div>
+            <div style={{ fontFamily: "var(--font-head)", fontSize: "2rem", fontWeight: 600, color: "var(--primary)", lineHeight: 1 }}>{progressPercent}%</div>
             <span style={{ fontSize: ".82rem", color: "var(--muted)", fontWeight: 600 }}>da sua trilha concluída</span>
-            <div style={{ height: 7, borderRadius: 999, background: "var(--surface-2)", overflow: "hidden", marginTop: 10 }}><div style={{ height: "100%", width: "32%", borderRadius: 999, background: "linear-gradient(90deg,var(--primary),#5a93f7)" }} /></div>
+            <div style={{ height: 7, borderRadius: 999, background: "var(--surface-2)", overflow: "hidden", marginTop: 10 }}><div style={{ height: "100%", width: `${progressPercent}%`, borderRadius: 999, background: "linear-gradient(90deg,var(--primary),#5a93f7)" }} /></div>
           </div>
         </section>
 
@@ -84,27 +113,36 @@ export function CursosClient({ initialCourses, profileNames }: CourseClientProps
           <div style={{ display: "flex", gap: 18, alignItems: "center" }}>
             <span style={{ display: "inline-flex", width: 56, height: 56, alignItems: "center", justifyContent: "center", borderRadius: 16, background: "rgba(255,255,255,.18)" }}><PlayCircle size={26} color="#fff" /></span>
             <div>
-              <span style={{ fontSize: ".8rem", opacity: .9, fontWeight: 600 }}>Continuar de onde parou</span>
-              <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 600, fontSize: "1.35rem", margin: "4px 0 0" }}>Fundamentos de Análise de Dados</h3>
-              <span style={{ fontSize: ".9rem", opacity: .92 }}>Aula 4 de 12 · 18 min restantes</span>
+              <span style={{ fontSize: ".8rem", opacity: .9, fontWeight: 600 }}>{resumeCourse ? "Continuar de onde parou" : "Comece sua trilha"}</span>
+              <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 600, fontSize: "1.35rem", margin: "4px 0 0" }}>{resumeCourse?.title ?? firstFreeCourse?.title ?? "Escolha um curso para começar"}</h3>
+              <span style={{ fontSize: ".9rem", opacity: .92 }}>{resumeCourse ? `${progressMap.get(resumeCourse.id)?.progress ?? 0}% concluído` : "Conteúdos gratuitos disponíveis antes do teste"}</span>
             </div>
           </div>
-          <button className="proto-btn courses-continue-action" style={{ height: 50, background: "#fff", color: "var(--primary)", border: "none", fontWeight: 700 }}>Retomar curso</button>
+          {(resumeCourse ?? firstFreeCourse) && (
+            <a
+              className="proto-btn courses-continue-action"
+              href={safeUrl((resumeCourse ?? firstFreeCourse)!.url) || "/cursos"}
+              target={safeUrl((resumeCourse ?? firstFreeCourse)!.url) ? "_blank" : undefined}
+              rel={safeUrl((resumeCourse ?? firstFreeCourse)!.url) ? "noreferrer" : undefined}
+              onClick={() => markCourseStarted((resumeCourse ?? firstFreeCourse)!)}
+              style={{ height: 50, background: "#fff", color: "var(--primary)", border: "none", fontWeight: 700 }}
+            >{resumeCourse ? "Retomar curso" : "Ver cursos gratuitos"}</a>
+          )}
         </section>
 
         <div className="proto-tabs" aria-label="Filtrar cursos">
-          {[["todos", "Todos"], ["dados", "Dados"], ["design", "Design"], ["gestao", "Gestão"]].map(([key, label]) => (
+          {[["gratuitos", "Gratuitos"], ["todos", "Todos"], ["dados", "Dados"], ["design", "Design"], ["gestao", "Gestão"]].map(([key, label]) => (
             <button key={key} type="button" className={filter === key ? "active" : undefined} onClick={() => setFilter(key)}>{label}</button>
           ))}
         </div>
 
-        <section className="courses-grid">
+        <section id="lista-cursos" className="courses-grid">
           {filtered.map((course) => {
             const color = colors[categoryOf(course)];
             const url = safeUrl(course.url);
             const hasUrl = Boolean(url);
             return (
-              <a key={course.id} className="proto-card course-card-link" href={hasUrl ? url : "/cursos"} target={hasUrl ? "_blank" : undefined} rel={hasUrl ? "noreferrer" : undefined} aria-disabled={!hasUrl} onClick={(event) => { if (!hasUrl) event.preventDefault(); }} style={{ overflow: "hidden", cursor: hasUrl ? "pointer" : "not-allowed", display: "flex", flexDirection: "column" }}>
+              <a key={course.id} className="proto-card course-card-link" href={hasUrl ? url : "/cursos"} target={hasUrl ? "_blank" : undefined} rel={hasUrl ? "noreferrer" : undefined} aria-disabled={!hasUrl} onClick={(event) => { if (!hasUrl) event.preventDefault(); markCourseStarted(course); }} style={{ overflow: "hidden", cursor: hasUrl ? "pointer" : "not-allowed", display: "flex", flexDirection: "column" }}>
                 <div style={{ height: 120, background: color, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>{iconFor(course.type)}<span style={{ position: "absolute", top: 12, right: 12, fontSize: ".7rem", fontWeight: 700, background: "rgba(255,255,255,.22)", color: "#fff", padding: "4px 10px", borderRadius: 999 }}>{course.isFree ? "Gratuito" : "Pago"}</span></div>
                 <div style={{ padding: 20, display: "grid", gap: 9, flex: 1 }}>
                   <span style={{ fontSize: ".72rem", letterSpacing: ".06em", textTransform: "uppercase", color: "var(--primary)", fontWeight: 700 }}>{course.type}</span>

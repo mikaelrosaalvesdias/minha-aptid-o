@@ -1,7 +1,18 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getSession } from "@/lib/auth";
+import { logError } from "@/lib/logging";
 
 export const dynamic = "force-dynamic";
+
+const payloadSchema = z.object({
+  messages: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().trim().min(1).max(4000) })).min(1).max(20),
+  contextData: z.object({
+    profiles: z.array(z.string().trim().max(120)).max(10),
+    strengths: z.array(z.string().trim().max(160)).max(20),
+    attentionPoints: z.array(z.string().trim().max(160)).max(20)
+  })
+});
 
 export async function POST(request: Request) {
   try {
@@ -15,12 +26,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Chave da OpenAI não configurada." }, { status: 500 });
     }
 
-    const body = await request.json();
-    const { messages, contextData } = body;
-
-    if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json({ error: "Mensagens inválidas." }, { status: 400 });
-    }
+    const { messages, contextData } = payloadSchema.parse(await request.json());
 
     // System prompt with the context
     const systemPrompt = `Você é um Mentor de Carreira Especialista, gentil, encorajador e direto.
@@ -54,8 +60,7 @@ Use as informações do perfil dele para personalizar TODAS as suas respostas. S
     });
 
     if (!openAiResponse.ok) {
-      const errorData = await openAiResponse.text();
-      console.error("OpenAI Mentor Error:", openAiResponse.status, errorData);
+      await logError("OpenAI Mentor retornou erro", { status: openAiResponse.status });
       return NextResponse.json({ error: "Erro ao comunicar com a IA." }, { status: 500 });
     }
 
@@ -68,7 +73,8 @@ Use as informações do perfil dele para personalizar TODAS as suas respostas. S
 
     return NextResponse.json({ reply });
   } catch (error) {
-    console.error("Erro interno no Mentor IA:", error);
+    await logError("Erro interno no Mentor IA", { error: String(error) });
+    if (error instanceof z.ZodError) return NextResponse.json({ error: "Dados inválidos para o Mentor." }, { status: 400 });
     return NextResponse.json({ error: "Erro interno no servidor." }, { status: 500 });
   }
 }

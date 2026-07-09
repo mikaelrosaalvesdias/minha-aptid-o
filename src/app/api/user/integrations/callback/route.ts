@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { logError } from "@/lib/logging";
 import { waitForOAuthConnection } from "@/lib/integrations/composio/client";
 import { createIntegrationLog } from "@/lib/integrations/service";
+import { getSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,13 @@ export async function GET(request: Request) {
   const status = searchParams.get("status");
   const userId = searchParams.get("userId");
   const slug = searchParams.get("slug");
-  const redirect = searchParams.get("redirect") || "/perfil";
+  const requestedRedirect = searchParams.get("redirect") || "/perfil";
+  const redirect = requestedRedirect.startsWith("/") && !requestedRedirect.startsWith("//") ? requestedRedirect : "/perfil";
+
+  const authenticatedUserId = await getSession();
+  if (!authenticatedUserId || !userId || authenticatedUserId !== userId) {
+    return NextResponse.redirect(new URL(`/perfil?error=conexao_falhou`, request.url));
+  }
 
   if (!connectedAccountId || status !== "success") {
     await logError("Composio callback com erro ou sem connectedAccountId", { connectedAccountId, status, userId, slug });

@@ -75,7 +75,17 @@ export async function POST(request: Request) {
       });
     });
 
-    return NextResponse.json({ resultId: result.id });
+    const response = NextResponse.json({ resultId: result.id });
+    if (!userId) {
+      response.cookies.set("guest_result_id", result.id, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 30,
+        path: "/"
+      });
+    }
+    return response;
   } catch (error) {
     await logError("Falha ao gerar resultado", { error: String(error) });
     if (error instanceof z.ZodError) {

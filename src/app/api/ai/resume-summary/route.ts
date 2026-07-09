@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getSession } from "@/lib/auth";
+import { logError } from "@/lib/logging";
 
 export const dynamic = "force-dynamic";
+
+const payloadSchema = z.object({
+  strengths: z.array(z.string().trim().max(160)).min(1).max(20),
+  profiles: z.array(z.string().trim().max(160)).min(1).max(10)
+});
 
 export async function POST(request: Request) {
   try {
@@ -12,16 +19,10 @@ export async function POST(request: Request) {
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      console.error("OPENAI_API_KEY not set");
       return NextResponse.json({ error: "Chave da OpenAI não configurada no servidor." }, { status: 500 });
     }
 
-    const body = await request.json();
-    const { strengths, profiles } = body;
-
-    if (!strengths?.length || !profiles?.length) {
-      return NextResponse.json({ error: "Dados insuficientes para gerar o resumo." }, { status: 400 });
-    }
+    const { strengths, profiles } = payloadSchema.parse(await request.json());
 
     const prompt = `Atue como um especialista em carreiras e recursos humanos. 
 O usuário deseja um resumo ("Sobre mim") forte e bem escrito para colocar no topo do currículo.
@@ -47,9 +48,8 @@ Aja naturalmente. Retorne apenas o texto do resumo, sem saudações ou explicaç
     });
 
     if (!openAiResponse.ok) {
-      const errorData = await openAiResponse.text();
-      console.error("OpenAI Error:", openAiResponse.status, errorData);
-      return NextResponse.json({ error: `Erro da OpenAI (${openAiResponse.status}). Verifique a chave de API.` }, { status: 500 });
+      await logError("OpenAI resumo retornou erro", { status: openAiResponse.status });
+      return NextResponse.json({ error: "Erro ao comunicar com a IA." }, { status: 500 });
     }
 
     const data = await openAiResponse.json();
@@ -61,7 +61,8 @@ Aja naturalmente. Retorne apenas o texto do resumo, sem saudações ou explicaç
 
     return NextResponse.json({ summary });
   } catch (error) {
-    console.error("Erro interno na rota AI:", error);
+    await logError("Erro interno na rota de resumo IA", { error: String(error) });
+    if (error instanceof z.ZodError) return NextResponse.json({ error: "Dados inválidos para gerar o resumo." }, { status: 400 });
     return NextResponse.json({ error: "Erro interno no servidor." }, { status: 500 });
   }
 }

@@ -17,6 +17,23 @@ Categorias de mudança:
 - **Removido** — função removida (geralmente acompanha bump MAJOR).
 - **Segurança** — correção de vulnerabilidade.
 
+## [1.9.0] - 2026-07-09
+
+### Adicionado
+- Progresso de cursos separado por usuário e curso, com persistência segura e retomada do conteúdo iniciado.
+- Acesso direto a cursos gratuitos antes da conclusão do teste de aptidão.
+- Filtro de cursos gratuitos e ordenação que prioriza conteúdos gratuitos.
+- Ícone oficial da plataforma para eliminar o erro de favicon no navegador.
+
+### Corrigido
+- Impedido o acesso, alteração e exclusão de resultados de aptidão pertencentes a outros usuários.
+- Protegido o callback de integração OAuth contra associação de conta usando `userId` de terceiros.
+- Removidos percentuais e cursos de retomada fictícios da tela de cursos.
+- Validada a entrada das rotas de IA e removidos detalhes sensíveis dos logs de erro externos.
+
+### Alterado
+- Catálogo global de cursos continua sendo administrado por perfil, enquanto o progresso individual passa a ficar isolado na conta de cada usuário.
+
 ## [1.8.0] - 2026-07-09
 
 ### Adicionado

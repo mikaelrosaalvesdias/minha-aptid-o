@@ -12,6 +12,7 @@ import { VideoRecommendations } from "@/components/VideoRecommendations";
 import { CapacityTestsClient } from "@/components/CapacityTestsClient";
 import { DeleteResultButton } from "@/components/ResultActions";
 import { DownloadPDFButton } from "@/components/DownloadPDFButton";
+import { canAccessResult } from "@/lib/result-access";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +45,7 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
   });
 
   if (!result) notFound();
+  if (!(await canAccessResult(id, result.session.userId))) notFound();
 
   const topProfiles = asTopProfiles(result.topProfiles);
   const mainProfile = topProfiles[0];

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { capacityLevel } from "@/lib/scoring";
 import { logError } from "@/lib/logging";
 import type { CapacityScore } from "@/lib/types";
+import { canAccessResult } from "@/lib/result-access";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +49,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     const result = await prisma.result.findUnique({ where: { id } });
     if (!result) {
+      return NextResponse.json({ error: "Resultado não encontrado." }, { status: 404 });
+    }
+
+    const session = await prisma.userSession.findUnique({ where: { id: result.sessionId }, select: { userId: true } });
+    if (!session || !(await canAccessResult(id, session.userId))) {
       return NextResponse.json({ error: "Resultado não encontrado." }, { status: 404 });
     }
 

@@ -11,7 +11,8 @@ const body = Public_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "70
 
 export const metadata: Metadata = {
   title: "Minha Aptidão — Mapa de carreira",
-  description: "Teste de aptidão, currículo profissional e vagas compatíveis com seu perfil. Tudo num só lugar, com calma e clareza."
+  description: "Teste de aptidão, currículo profissional e vagas compatíveis com seu perfil. Tudo num só lugar, com calma e clareza.",
+  icons: { icon: "/icon.svg" }
 };
 
 const themeScript = `(function(){try{var t=localStorage.getItem('ma_theme');if(t==='dark'||(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.dataset.theme='dark';}else{document.documentElement.dataset.theme='';}}catch(e){}})();`;
