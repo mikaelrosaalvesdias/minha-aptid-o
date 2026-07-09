@@ -17,6 +17,17 @@ Categorias de mudança:
 - **Removido** — função removida (geralmente acompanha bump MAJOR).
 - **Segurança** — correção de vulnerabilidade.
 
+## [1.8.0] - 2026-07-09
+
+### Adicionado
+- Layout responsivo para home, teste, perfil, vagas, preferências, currículo e publicação em telas pequenas, médias e grandes.
+- Cartões de resposta maiores e adaptáveis para facilitar o uso por toque no celular.
+- Estado de carregamento, erro e tentativa de recarregar perguntas sem deixar a tela vazia.
+
+### Alterado
+- Navegação, grids, botões e áreas de conteúdo reorganizados para evitar cortes e rolagem horizontal em dispositivos móveis.
+- Tela do teste recebeu hierarquia visual mais clara, progresso destacado e orientação explícita para escolher uma opção.
+
 ---
 
 ## [1.7.0] - 2026-06-21

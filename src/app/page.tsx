@@ -2,8 +2,8 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <main style={{ position: "relative", zIndex: 1 }}>
-      <section style={{ maxWidth: 1180, margin: "0 auto", padding: "clamp(40px,6vw,84px) clamp(20px,5vw,40px)", display: "grid", gridTemplateColumns: "1.05fr .95fr", gap: "clamp(36px,6vw,72px)", alignItems: "center" }}>
+    <main className="home-page" style={{ position: "relative", zIndex: 1 }}>
+      <section className="home-hero-section" style={{ maxWidth: 1180, margin: "0 auto", padding: "clamp(40px,6vw,84px) clamp(20px,5vw,40px)", display: "grid", gridTemplateColumns: "1.05fr .95fr", gap: "clamp(36px,6vw,72px)", alignItems: "center" }}>
         <div>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 14px", borderRadius: 99, background: "var(--primary-soft)", color: "var(--primary-hover)", fontSize: ".82rem", fontWeight: 600, border: "1px solid color-mix(in srgb,var(--primary) 18%,transparent)" }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4" /><circle cx="12" cy="12" r="3.2" /></svg>
@@ -51,12 +51,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section style={{ maxWidth: 1180, margin: "0 auto", padding: "0 clamp(20px,5vw,40px) clamp(30px,5vw,60px)" }}>
+      <section className="home-steps-section" style={{ maxWidth: 1180, margin: "0 auto", padding: "0 clamp(20px,5vw,40px) clamp(30px,5vw,60px)" }}>
         <div style={{ textAlign: "center", maxWidth: 640, margin: "0 auto 40px" }}>
           <span style={{ fontSize: ".8rem", letterSpacing: ".16em", textTransform: "uppercase", color: "var(--primary)", fontWeight: 700 }}>Como funciona</span>
           <h2 style={{ fontFamily: "var(--font-head)", fontWeight: 500, fontSize: "clamp(1.9rem,3.5vw,2.7rem)", letterSpacing: "-0.02em", margin: "12px 0 0" }}>Três passos, sem pressa</h2>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
+        <div className="home-steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
           <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 20, boxShadow: "var(--shadow-card)", padding: 30, display: "grid", gap: 14 }}>
             <span style={{ display: "inline-flex", width: 46, height: 46, alignItems: "center", justifyContent: "center", borderRadius: 13, background: "var(--primary-soft)", color: "var(--primary)" }}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg></span>
             <h3 style={{ fontFamily: "var(--font-head)", fontWeight: 600, fontSize: "1.3rem", margin: 0 }}>1 · Responda o teste</h3>
@@ -75,8 +75,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section style={{ maxWidth: 1180, margin: "0 auto", padding: "clamp(20px,4vw,50px) clamp(20px,5vw,40px) clamp(40px,6vw,80px)" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }}>
+      <section className="home-features-section" style={{ maxWidth: 1180, margin: "0 auto", padding: "clamp(20px,4vw,50px) clamp(20px,5vw,40px) clamp(40px,6vw,80px)" }}>
+        <div className="home-features-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }}>
           <Link href="/teste" style={{ textAlign: "left", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 18, boxShadow: "var(--shadow-card)", padding: 24, display: "grid", gap: 12, cursor: "pointer", fontFamily: "var(--font-body)" }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
             <strong style={{ fontSize: "1.05rem" }}>Teste de aptidão</strong>

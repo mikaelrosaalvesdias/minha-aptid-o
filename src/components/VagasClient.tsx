@@ -166,7 +166,7 @@ export function VagasClient({ initialJobs }: { initialJobs: Job[] }) {
           <Link href="/vagas/preferencias">Preferências</Link>
         </nav>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, padding: 18, background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, boxShadow: "var(--shadow-card)" }}>
+          <div className="jobs-stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, padding: 18, background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, boxShadow: "var(--shadow-card)" }}>
             <div className="proto-field"><input value={filters.cargo} onChange={(e) => setFilters({ ...filters, cargo: e.target.value })} placeholder="Cargo ou palavra-chave" /></div>
             <div className="proto-field"><input value={filters.cidade} onChange={(e) => setFilters({ ...filters, cidade: e.target.value })} placeholder="Cidade" /></div>
             <div className="proto-field"><select value={filters.modelo} onChange={(e) => setFilters({ ...filters, modelo: e.target.value })}><option value="qualquer">Modelo: todos</option><option value="remoto">Remoto</option><option value="hibrido">Híbrido</option><option value="presencial">Presencial</option></select></div>
@@ -196,7 +196,7 @@ export function VagasClient({ initialJobs }: { initialJobs: Job[] }) {
         ) : filteredJobs.length === 0 ? (
           <div className="proto-card empty-state"><Search size={40} /><p>Nenhuma vaga encontrada ainda.</p><Link href="/vagas/preferencias" className="proto-btn primary">Configurar preferências e buscar</Link></div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(340px,1fr))", gap: 16 }}>
+          <div className="jobs-list-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(340px,1fr))", gap: 16 }}>
             {filteredJobs.map((job) => {
               const selected = selectedIds.has(job.id);
               const color = compatColor(job.compatibilityScore);

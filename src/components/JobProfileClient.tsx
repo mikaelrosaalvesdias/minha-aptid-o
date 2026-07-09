@@ -136,7 +136,7 @@ export function JobProfileClient({ initial }: { initial: JobProfileData | null }
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
+      <div className="job-profile-fields-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
         <div className="field"><label>Telefone</label><input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="(11) 99999-9999" /></div>
         <div className="field"><label>Cidade</label><input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="São Paulo" /></div>
         <div className="field"><label>Estado</label><input value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} placeholder="SP" /></div>

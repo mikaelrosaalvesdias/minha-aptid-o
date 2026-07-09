@@ -526,13 +526,13 @@ export function ResumeBuilderClient({
   );
 
   return (
-    <main className="ambient-shell">
+    <main className="ambient-shell resume-builder-page">
       <div className="ambient-content proto-shell-lg" style={{ display: "grid", gap: 20 }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-end", justifyContent: "space-between", marginBottom: 22 }}>
           <div><p className="proto-eyebrow">Editor de currículo</p><h1 className="proto-title" style={{ fontSize: "clamp(1.9rem,3.6vw,2.6rem)" }}>Currículo profissional</h1></div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}><button className="proto-btn" type="button" onClick={() => saveVersion(false)} disabled={saving || !loaded}>{saving ? <Loader2 className="spin" size={16} /> : <Save size={16} />} Nova versão</button><button className="proto-btn primary" type="button" onClick={() => saveVersion(false)} disabled={saving || !loaded}>{saving ? <Loader2 className="spin" size={16} /> : <Save size={16} />} Salvar</button></div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "280px 1fr 300px", gap: 20, alignItems: "start" }}>
+        <div className="resume-builder-grid" style={{ display: "grid", gridTemplateColumns: "280px 1fr 300px", gap: 20, alignItems: "start" }}>
       <aside className="card" style={{ padding: 20, position: "sticky", top: 90, maxHeight: "calc(100vh - 110px)", overflow: "auto" }}>
         <Link href="/perfil" className="button ghost" style={{ marginBottom: 12, marginLeft: -10 }}>
           <ArrowLeft size={18} /> Voltar ao Perfil

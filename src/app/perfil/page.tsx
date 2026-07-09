@@ -29,8 +29,8 @@ export default async function ProfilePage() {
   const memberDate = new Intl.DateTimeFormat("pt-BR", { month: "short", year: "numeric" }).format(memberSince);
 
   return (
-    <main style={{ maxWidth: 980, margin: "0 auto", padding: "clamp(30px,5vw,56px) clamp(20px,5vw,40px)", display: "grid", gap: 24 }}>
-      <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 24, boxShadow: "var(--shadow-card)", padding: "clamp(24px,4vw,36px)", display: "flex", flexWrap: "wrap", gap: 22, alignItems: "center", justifyContent: "space-between" }}>
+    <main className="profile-page" style={{ maxWidth: 980, margin: "0 auto", padding: "clamp(30px,5vw,56px) clamp(20px,5vw,40px)", display: "grid", gap: 24 }}>
+      <div className="profile-header-card" style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 24, boxShadow: "var(--shadow-card)", padding: "clamp(24px,4vw,36px)", display: "flex", flexWrap: "wrap", gap: 22, alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           <span style={{ display: "inline-flex", width: 74, height: 74, alignItems: "center", justifyContent: "center", borderRadius: 22, background: "linear-gradient(140deg,var(--primary),#5a93f7)", color: "#fff", fontFamily: "var(--font-head)", fontSize: "1.9rem", fontWeight: 600, boxShadow: "0 12px 26px -12px var(--primary-shadow)" }}>{initials}</span>
           <div>
@@ -45,7 +45,7 @@ export default async function ProfilePage() {
         </form>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+      <div className="profile-stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
         <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 18, boxShadow: "var(--shadow-card)", padding: 24, display: "grid", gap: 6 }}>
           <span style={{ color: "var(--muted)", fontSize: ".85rem", fontWeight: 600 }}>Teste de aptidão</span>
           <strong style={{ fontSize: "1.5rem", fontFamily: "var(--font-head)", fontWeight: 600 }}>{sessions.length > 0 ? "Concluído" : "Pendente"}</strong>
@@ -69,7 +69,7 @@ export default async function ProfilePage() {
           <h2 className="proto-title" style={{ fontSize: "1.35rem", margin: 0 }}>Integrações de vagas e currículo</h2>
           <p className="muted" style={{ margin: "6px 0 0" }}>Apenas integrações com fluxo real configurado permitem conexão. As demais aparecem como pendentes para não criar botão falso.</p>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,280px),1fr))", gap: 14 }}>
+        <div className="profile-links-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,280px),1fr))", gap: 14 }}>
           {integrationProviders.map((provider) => {
             const connection = connectionByProvider.get(provider.slug);
             const capabilities = Array.isArray(provider.capabilitiesJson) ? provider.capabilitiesJson.filter((item) => typeof item === "string") : [];
@@ -93,7 +93,7 @@ export default async function ProfilePage() {
         </div>
       </section>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 16 }}>
+      <div className="profile-bottom-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 16 }}>
         {sessions.length > 0 && sessions.map((session) => {
           if (!session.result) return null;
           let mainProfileName = "Em construção";

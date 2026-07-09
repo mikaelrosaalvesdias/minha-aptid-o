@@ -108,7 +108,7 @@ export function JobPreferencesClient({ initial }: { initial: Preference | null }
             <p className="proto-eyebrow">Preferências de busca</p>
             <h2 className="proto-title" style={{ fontSize: "1.4rem", margin: 0 }}>Preferências de busca</h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="preferences-fields-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             <div className="proto-field"><label>Cargo desejado</label><input value={form.cargo} onChange={(e) => setForm({ ...form, cargo: e.target.value })} /></div>
             <div className="proto-field"><label>Área</label><input value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })} /></div>
             <div className="proto-field"><label>Cidade</label><input value={form.cidade} onChange={(e) => setForm({ ...form, cidade: e.target.value })} /></div>

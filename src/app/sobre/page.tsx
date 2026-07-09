@@ -37,12 +37,12 @@ export default async function SobrePage() {
   } catch {}
 
   return (
-    <main style={{ maxWidth: 840, margin: "0 auto", padding: "clamp(34px,6vw,72px) clamp(20px,5vw,40px)", display: "grid", gap: 24 }}>
+    <main className="about-page" style={{ maxWidth: 840, margin: "0 auto", padding: "clamp(34px,6vw,72px) clamp(20px,5vw,40px)", display: "grid", gap: 24 }}>
       <span style={{ fontSize: ".8rem", letterSpacing: ".14em", textTransform: "uppercase", color: "var(--primary)", fontWeight: 700 }}>Sobre</span>
       <h1 style={{ fontFamily: "var(--font-head)", fontWeight: 500, fontSize: "clamp(2.2rem,4.6vw,3.4rem)", lineHeight: 1.1, letterSpacing: "-0.025em", margin: 0 }}>Ajudar pessoas a encontrarem caminhos com mais clareza.</h1>
       <p style={{ margin: 0, color: "var(--muted)", fontSize: "1.12rem", lineHeight: 1.7 }}>O Minha Aptidão é uma plataforma gratuita de orientação profissional. Combinamos um teste de aptidão, recomendações de estudo, um editor profissional de currículo e uma área de vagas compatíveis com o seu perfil.</p>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, margin: "10px 0" }}>
+      <div className="about-feature-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, margin: "10px 0" }}>
         <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 18, boxShadow: "var(--shadow-card)", padding: 24, display: "grid", gap: 9 }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
           <strong style={{ fontSize: "1.05rem" }}>Autoconhecimento</strong>
