@@ -124,6 +124,17 @@ export default async function ProfilePage() {
             </span>
           </Link>
         )}
+        {sessions.length === 0 && (
+          <Link href="/curriculo" style={{ textAlign: "left", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 18, boxShadow: "var(--shadow-card)", padding: 24, display: "flex", gap: 16, alignItems: "center", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+            <span style={{ display: "inline-flex", width: 48, height: 48, alignItems: "center", justifyContent: "center", borderRadius: 13, background: "var(--primary-soft)", color: "var(--primary)", flexShrink: 0 }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M12 11v6M9 14h6" /></svg>
+            </span>
+            <span style={{ display: "grid", gap: 3 }}>
+              <strong style={{ fontSize: "1.05rem" }}>Montar meu currículo</strong>
+              <span style={{ color: "var(--muted)", fontSize: ".9rem" }}>Comece pelo editor mesmo antes do teste</span>
+            </span>
+          </Link>
+        )}
         <Link href="/vagas" style={{ textAlign: "left", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 18, boxShadow: "var(--shadow-card)", padding: 24, display: "flex", gap: 16, alignItems: "center", cursor: "pointer", fontFamily: "var(--font-body)" }}>
           <span style={{ display: "inline-flex", width: 48, height: 48, alignItems: "center", justifyContent: "center", borderRadius: 13, background: "var(--primary-soft)", color: "var(--primary)", flexShrink: 0 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>

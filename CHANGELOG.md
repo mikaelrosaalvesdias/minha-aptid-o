@@ -17,6 +17,12 @@ Categorias de mudança:
 - **Removido** — função removida (geralmente acompanha bump MAJOR).
 - **Segurança** — correção de vulnerabilidade.
 
+## [1.9.1] - 2026-07-09
+
+### Corrigido
+- Restaurado o acesso direto ao editor de currículo pelo menu, início e perfil.
+- Permitida a montagem do currículo mesmo antes de concluir o teste de aptidão.
+
 ## [1.9.0] - 2026-07-09
 
 ### Adicionado

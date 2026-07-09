@@ -36,6 +36,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <nav className="nav-links" aria-label="Navegação principal">
             <Link href="/teste">Teste</Link>
             <Link href="/resultado">Resultado</Link>
+            {user && <Link href="/curriculo">Currículo</Link>}
             <Link href="/cursos">Cursos</Link>
             {user && <Link href="/vagas">Vagas</Link>}
             <Link href="/sobre">Sobre</Link>

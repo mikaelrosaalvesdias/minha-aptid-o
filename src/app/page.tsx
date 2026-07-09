@@ -82,7 +82,7 @@ export default function HomePage() {
             <strong style={{ fontSize: "1.05rem" }}>Teste de aptidão</strong>
             <span style={{ color: "var(--muted)", fontSize: ".92rem", lineHeight: 1.5 }}>Descubra suas aptidões naturais</span>
           </Link>
-          <Link href="/perfil" style={{ textAlign: "left", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 18, boxShadow: "var(--shadow-card)", padding: 24, display: "grid", gap: 12, cursor: "pointer", fontFamily: "var(--font-body)" }}>
+          <Link href="/curriculo" style={{ textAlign: "left", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 18, boxShadow: "var(--shadow-card)", padding: 24, display: "grid", gap: 12, cursor: "pointer", fontFamily: "var(--font-body)" }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg>
             <strong style={{ fontSize: "1.05rem" }}>Currículo profissional</strong>
             <span style={{ color: "var(--muted)", fontSize: ".92rem", lineHeight: 1.5 }}>20 templates e pontuação ATS</span>

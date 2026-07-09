@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getUser } from "@/lib/auth";
+import { ResumeBuilderClient } from "@/components/ResumeBuilderClient";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,8 @@ export default async function CurriculoRedirectPage() {
     select: { id: true }
   });
 
-  if (!latest) redirect("/teste");
+  if (!latest) {
+    return <ResumeBuilderClient userName={user.name} userEmail={user.email} strengths={[]} profiles={[]} />;
+  }
   redirect(`/curriculo/${latest.id}`);
 }
